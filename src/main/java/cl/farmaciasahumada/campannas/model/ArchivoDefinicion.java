@@ -36,26 +36,11 @@ public class ArchivoDefinicion {
     @Column(name = "formatos_permitidos", columnDefinition = "jsonb", nullable = false)
     private String formatosPermitidos;
 
-    @Column(name = "fila_encabezado")
-    private Integer filaEncabezado;
+    @Column(name = "politica_retencion", nullable = false)
+    private String politicaRetencion;
 
-    @Column(name = "modo_sincronizacion", nullable = false)
-    private String modoSincronizacion;
-
-    @Column(name = "tabla_destino")
-    private String tablaDestino;
-
-    @Column(name = "requiere_campania", nullable = false)
-    private Boolean requiereCampania;
-
-    @Column(name = "requiere_farmacia", nullable = false)
-    private Boolean requiereFarmacia;
-
-    @Column(name = "requiere_exhibidor", nullable = false)
-    private Boolean requiereExhibidor;
-
-    @Column(name = "conservar_columnas_desconocidas", nullable = false)
-    private Boolean conservarColumnasDesconocidas;
+    @Column(name = "max_versiones_retenidas")
+    private Integer maxVersionesRetenidas;
 
     @Column(nullable = false)
     private Boolean activo;

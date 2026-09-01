@@ -22,7 +22,7 @@ public class Archivo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne
     @JoinColumn(name = "definicion_id", nullable = false)
     private ArchivoDefinicion definicion;
@@ -58,23 +58,6 @@ public class Archivo {
 
     @Column(name = "hash_sha256")
     private String hashSha256;
-
-    @ManyToOne
-    @JoinColumn(name = "campania_id")
-    private Campania campania;
-
-    @ManyToOne
-    @JoinColumn(name = "farmacia_id")
-    private Farmacia farmacia;
-
-    @ManyToOne
-    @JoinColumn(name = "exhibidor_id")
-    private Exhibidor exhibidor;
-
-    private String vista;
-
-    @Column(name = "rol_imagen")
-    private String rolImagen;
 
     @Column(nullable = false)
     private String origen;

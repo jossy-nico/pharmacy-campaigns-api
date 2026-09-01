@@ -1,7 +1,6 @@
 package cl.farmaciasahumada.campannas.controller;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import cl.farmaciasahumada.campannas.dto.ArchivoResponse;
-import cl.farmaciasahumada.campannas.model.Archivo;
 import cl.farmaciasahumada.campannas.service.ArchivoService;
 import cl.farmaciasahumada.campannas.service.archivo.EsquemaTabularInferido;
 
@@ -54,43 +52,19 @@ public class ArchivoController {
                 }
         }
 
-        @PostMapping
-        public ResponseEntity<?> cargar(
-                        @RequestParam("tipoArchivo") String tipoArchivo,
-                        @RequestParam("archivo") MultipartFile archivo) {
+        @GetMapping("/datasets/{codigo}/activo")
+        public ResponseEntity<?> obtenerDatasetActivo(
+                        @PathVariable String codigo,
+                        @RequestParam(value = "periodoReferencia", required = false) String periodoReferencia) {
 
                 try {
 
-                        Archivo resultado = archivoService.cargar(
-                                        tipoArchivo,
-                                        archivo);
+                        Map<String, Object> resultado = archivoService.obtenerDatasetActivo(
+                                        codigo,
+                                        periodoReferencia);
 
-                        Map<String, Object> respuesta = new LinkedHashMap<>();
-
-                        respuesta.put("id", resultado.getId());
-                        respuesta.put(
-                                        "tipoArchivo",
-                                        resultado.getDefinicion().getCodigo());
-                        respuesta.put(
-                                        "nombreOriginal",
-                                        resultado.getNombreOriginal());
-                        respuesta.put(
-                                        "version",
-                                        resultado.getVersion());
-                        respuesta.put(
-                                        "estadoArchivo",
-                                        resultado.getEstadoArchivo());
-                        respuesta.put(
-                                        "estadoProcesamiento",
-                                        resultado.getEstadoProcesamiento());
-                        respuesta.put(
-                                        "tamanoBytes",
-                                        resultado.getTamanoBytes());
-                        respuesta.put(
-                                        "hashSha256",
-                                        resultado.getHashSha256());
-
-                        return ResponseEntity.ok(respuesta);
+                        return ResponseEntity.ok(
+                                        resultado);
 
                 } catch (IllegalArgumentException e) {
 
@@ -99,14 +73,28 @@ public class ArchivoController {
                                         .body(Map.of(
                                                         "error",
                                                         e.getMessage()));
+                }
+        }
 
-                } catch (IOException e) {
+        @GetMapping("/datasets")
+        public ResponseEntity<?> listarDatasets(
+                        @RequestParam(value = "categoria", required = false) String categoria,
+                        @RequestParam(value = "estado", required = false) String estado) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        archivoService.listarDatasets(
+                                                        categoria,
+                                                        estado));
+
+                } catch (IllegalArgumentException e) {
 
                         return ResponseEntity
-                                        .internalServerError()
+                                        .badRequest()
                                         .body(Map.of(
                                                         "error",
-                                                        "Error al almacenar el archivo."));
+                                                        e.getMessage()));
                 }
         }
 
@@ -163,45 +151,18 @@ public class ArchivoController {
                 }
         }
 
-        @PutMapping("/{id}")
-        public ResponseEntity<?> reemplazar(
-                        @PathVariable Long id,
+        @PostMapping("/datasets")
+        public ResponseEntity<?> crearDataset(@RequestParam("nombreDataset") String nombreDataset,
                         @RequestParam("archivo") MultipartFile archivo) {
 
                 try {
 
-                        Archivo resultado = archivoService.reemplazar(
-                                        id,
+                        Map<String, Object> resultado = archivoService.crearDatasetNuevo(
+                                        nombreDataset,
                                         archivo);
-
-                        Map<String, Object> respuesta = new LinkedHashMap<>();
-
-                        respuesta.put(
-                                        "id",
-                                        resultado.getId());
-
-                        respuesta.put(
-                                        "tipoArchivo",
-                                        resultado.getDefinicion().getCodigo());
-
-                        respuesta.put(
-                                        "nombreOriginal",
-                                        resultado.getNombreOriginal());
-
-                        respuesta.put(
-                                        "version",
-                                        resultado.getVersion());
-
-                        respuesta.put(
-                                        "estadoArchivo",
-                                        resultado.getEstadoArchivo());
-
-                        respuesta.put(
-                                        "estadoProcesamiento",
-                                        resultado.getEstadoProcesamiento());
 
                         return ResponseEntity.ok(
-                                        respuesta);
+                                        resultado);
 
                 } catch (IllegalArgumentException e) {
 
@@ -217,22 +178,51 @@ public class ArchivoController {
                                         .internalServerError()
                                         .body(Map.of(
                                                         "error",
-                                                        "Error al reemplazar el archivo."));
+                                                        "No fue posible crear el dataset."));
                 }
         }
 
-        @PostMapping("/dinamico")
-        public ResponseEntity<?> cargarDinamico(
-                        @RequestParam("nombreTabla") String nombreTabla,
+        @PatchMapping("/datasets/{codigo}/retencion")
+        public ResponseEntity<?> actualizarPoliticaRetencion(
+                        @PathVariable String codigo,
+                        @RequestParam("politica") String politica,
+                        @RequestParam(value = "maxVersiones", required = false) Integer maxVersiones) {
+
+                try {
+
+                        Map<String, Object> resultado = archivoService.actualizarPoliticaRetencion(
+                                        codigo,
+                                        politica,
+                                        maxVersiones);
+
+                        return ResponseEntity.ok(
+                                        resultado);
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
+        @PostMapping("/datasets/{codigo}/cargar")
+        public ResponseEntity<?> cargarDatasetExistente(
+                        @PathVariable String codigo,
+                        @RequestParam(value = "periodoReferencia", required = false) String periodoReferencia,
                         @RequestParam("archivo") MultipartFile archivo) {
 
                 try {
 
-                        Map<String, Object> resultado = archivoService.crearTablaDinamica(
-                                        nombreTabla,
+                        Map<String, Object> resultado = archivoService.cargarDatasetExistente(
+                                        codigo,
+                                        periodoReferencia,
                                         archivo);
 
-                        return ResponseEntity.ok(resultado);
+                        return ResponseEntity.ok(
+                                        resultado);
 
                 } catch (IllegalArgumentException e) {
 
@@ -248,7 +238,48 @@ public class ArchivoController {
                                         .internalServerError()
                                         .body(Map.of(
                                                         "error",
-                                                        "No fue posible procesar el archivo."));
+                                                        "No fue posible cargar el archivo."));
                 }
         }
+
+        @PatchMapping("/datasets/{codigo}/desactivar")
+        public ResponseEntity<?> desactivarDataset(
+                        @PathVariable String codigo) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        archivoService.desactivarDataset(
+                                                        codigo));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
+        @PatchMapping("/datasets/{codigo}/reactivar")
+        public ResponseEntity<?> reactivarDataset(
+                        @PathVariable String codigo) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        archivoService.reactivarDataset(
+                                                        codigo));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
 }

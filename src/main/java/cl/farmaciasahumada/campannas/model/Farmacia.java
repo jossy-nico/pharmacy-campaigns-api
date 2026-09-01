@@ -40,4 +40,7 @@ public class Farmacia {
     private String formatoComercial;
 
     private String clasificacion;
+
+    @Column(nullable = false)
+    private String estado;
 }
