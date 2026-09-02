@@ -116,4 +116,48 @@ public class CampaniaController {
                             e.getMessage()));
         }
     }
+
+    @PatchMapping("/{id}/correccion")
+    public ResponseEntity<?> corregirCampania(
+            @PathVariable Long id,
+            @RequestParam("motivo") String motivo,
+            @RequestBody Campania campania) {
+
+        try {
+
+            return ResponseEntity.ok(
+                    campaniaService.corregirCampania(
+                            id,
+                            campania,
+                            motivo));
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "error",
+                            e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}/auditoria")
+    public ResponseEntity<?> obtenerHistorialAuditoria(
+            @PathVariable Long id) {
+
+        try {
+
+            return ResponseEntity.ok(
+                    campaniaService.obtenerHistorialAuditoria(
+                            id));
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "error",
+                            e.getMessage()));
+        }
+    }
 }
