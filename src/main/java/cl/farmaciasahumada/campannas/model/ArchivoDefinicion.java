@@ -47,4 +47,7 @@ public class ArchivoDefinicion {
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
+
+    @Column(name = "permitir_columnas_adicionales", nullable = false)
+    private Boolean permitirColumnasAdicionales;
 }

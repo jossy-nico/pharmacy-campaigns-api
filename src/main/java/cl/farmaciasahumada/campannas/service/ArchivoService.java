@@ -26,6 +26,7 @@ import cl.farmaciasahumada.campannas.repository.ArchivoDefinicionRepository;
 
 import cl.farmaciasahumada.campannas.service.archivo.ArchivoStorageService;
 import cl.farmaciasahumada.campannas.service.archivo.LectorTabularGenerico;
+import cl.farmaciasahumada.campannas.service.archivo.ValidadorDatasetGenerico;
 import cl.farmaciasahumada.campannas.service.archivo.DocumentoTabular;
 import cl.farmaciasahumada.campannas.service.archivo.EsquemaTabularInferido;
 import cl.farmaciasahumada.campannas.service.archivo.InferidorEsquemaTabular;
@@ -40,6 +41,7 @@ public class ArchivoService {
         private final InferidorEsquemaTabular inferidorEsquemaTabular;
         private final GestorTablaDinamica gestorTablaDinamica;
         private final ArchivoDefinicionRepository archivoDefinicionRepository;
+        private final ValidadorDatasetGenerico validadorDatasetGenerico;
 
         public ArchivoService(
                         ArchivoRepository archivoRepository,
@@ -47,7 +49,8 @@ public class ArchivoService {
                         LectorTabularGenerico lectorTabularGenerico,
                         InferidorEsquemaTabular inferidorEsquemaTabular,
                         GestorTablaDinamica gestorTablaDinamica,
-                        ArchivoDefinicionRepository archivoDefinicionRepository) {
+                        ArchivoDefinicionRepository archivoDefinicionRepository,
+                        ValidadorDatasetGenerico validadorDatasetGenerico) {
 
                 this.archivoRepository = archivoRepository;
                 this.storageService = storageService;
@@ -55,6 +58,7 @@ public class ArchivoService {
                 this.inferidorEsquemaTabular = inferidorEsquemaTabular;
                 this.gestorTablaDinamica = gestorTablaDinamica;
                 this.archivoDefinicionRepository = archivoDefinicionRepository;
+                this.validadorDatasetGenerico = validadorDatasetGenerico;
         }
 
         public EsquemaTabularInferido analizar(
@@ -383,6 +387,9 @@ public class ArchivoService {
 
                 DocumentoTabular documento = lectorTabularGenerico.leerAutomatico(
                                 archivo);
+                validadorDatasetGenerico.validar(
+                                definicion,
+                                documento);
 
                 EsquemaTabularInferido esquema = inferidorEsquemaTabular.inferir(
                                 documento);
