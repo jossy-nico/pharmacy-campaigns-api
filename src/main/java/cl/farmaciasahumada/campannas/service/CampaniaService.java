@@ -361,6 +361,101 @@ public class CampaniaService {
         }
 
         @Transactional
+        public Campania extenderCampania(
+                        Long id,
+                        LocalDate nuevaFechaFin,
+                        String motivo) {
+
+                Campania campania = obtenerPorId(
+                                id);
+
+                if (!"ACTIVA".equalsIgnoreCase(
+                                campania.getEstado())) {
+
+                        throw new IllegalArgumentException(
+                                        "Solo se puede extender una campaña "
+                                                        + "que se encuentre ACTIVA.");
+                }
+
+                if (nuevaFechaFin == null) {
+
+                        throw new IllegalArgumentException(
+                                        "La nueva fecha de término es obligatoria.");
+                }
+
+                if (campania.getFechaFin() == null) {
+
+                        throw new IllegalArgumentException(
+                                        "La campaña no posee una fecha de término válida.");
+                }
+
+                if (!nuevaFechaFin.isAfter(
+                                campania.getFechaFin())) {
+
+                        throw new IllegalArgumentException(
+                                        "La nueva fecha de término debe ser posterior "
+                                                        + "a la fecha de término actual.");
+                }
+
+                validarMotivoExtension(
+                                motivo);
+
+                Map<String, Object> datosAnteriores = construirSnapshotAuditoria(
+                                campania);
+
+                /*
+                 * Una extensión modifica únicamente la fecha final.
+                 *
+                 * No cambia:
+                 * - año
+                 * - mes
+                 * - código
+                 * - archivo
+                 * - estado
+                 */
+                campania.setFechaFin(
+                                nuevaFechaFin);
+
+                Campania extendida = campaniaRepository.saveAndFlush(
+                                campania);
+
+                Map<String, Object> datosNuevos = construirSnapshotAuditoria(
+                                extendida);
+
+                CampaniaAuditoria auditoria = new CampaniaAuditoria();
+
+                auditoria.setCampania(
+                                extendida);
+
+                auditoria.setAccion(
+                                "EXTENSION");
+
+                auditoria.setMotivo(
+                                motivo.trim());
+
+                auditoria.setDatosAnteriores(
+                                datosAnteriores);
+
+                auditoria.setDatosNuevos(
+                                datosNuevos);
+
+                /*
+                 * Temporalmente null hasta implementar
+                 * autenticación y roles.
+                 */
+                auditoria.setUsuario(
+                                null);
+
+                auditoria.setFechaModificacion(
+                                OffsetDateTime.now());
+
+                campaniaAuditoriaRepository.saveAndFlush(
+                                auditoria);
+
+                return extendida;
+        }
+
+        @Transactional
         public Campania cambiarEstado(
                         Long id,
                         String estado) {
@@ -371,9 +466,16 @@ public class CampaniaService {
                 validarEstado(
                                 estado);
 
+                String nuevoEstado = estado
+                                .trim()
+                                .toUpperCase(Locale.ROOT);
+
+                validarTransicionEstado(
+                                campania.getEstado(),
+                                nuevoEstado);
+
                 campania.setEstado(
-                                estado.trim()
-                                                .toUpperCase(Locale.ROOT));
+                                nuevoEstado);
 
                 return campaniaRepository.saveAndFlush(
                                 campania);
@@ -722,6 +824,86 @@ public class CampaniaService {
                                 campania.getEstado());
 
                 return datos;
+        }
+
+        private void validarTransicionEstado(
+                        String estadoActual,
+                        String nuevoEstado) {
+
+                if (estadoActual == null
+                                || estadoActual.isBlank()) {
+
+                        throw new IllegalArgumentException(
+                                        "La campaña no posee un estado válido.");
+                }
+
+                String actual = estadoActual
+                                .trim()
+                                .toUpperCase(Locale.ROOT);
+
+                /*
+                 * Repetir el mismo estado es idempotente.
+                 */
+                if (actual.equals(
+                                nuevoEstado)) {
+
+                        return;
+                }
+
+                boolean transicionPermitida = switch (actual) {
+
+                        case "BORRADOR" ->
+                                "PROGRAMADA".equals(nuevoEstado)
+                                                || "CANCELADA".equals(nuevoEstado);
+
+                        case "PROGRAMADA" ->
+                                "ACTIVA".equals(nuevoEstado)
+                                                || "CANCELADA".equals(nuevoEstado);
+
+                        case "ACTIVA" ->
+                                "FINALIZADA".equals(nuevoEstado)
+                                                || "CANCELADA".equals(nuevoEstado);
+
+                        case "FINALIZADA",
+                                        "CANCELADA" ->
+                                false;
+
+                        default -> false;
+                };
+
+                if (!transicionPermitida) {
+
+                        throw new IllegalArgumentException(
+                                        "No se permite cambiar una campaña de "
+                                                        + actual
+                                                        + " a "
+                                                        + nuevoEstado
+                                                        + ".");
+                }
+        }
+
+        private void validarMotivoExtension(
+                        String motivo) {
+
+                if (motivo == null
+                                || motivo.isBlank()) {
+
+                        throw new IllegalArgumentException(
+                                        "El motivo de la extensión es obligatorio.");
+                }
+
+                String motivoNormalizado = motivo.trim()
+                                .toUpperCase(Locale.ROOT);
+
+                if (motivoNormalizado.equals("*")
+                                || motivoNormalizado.equals("-")
+                                || motivoNormalizado.equals("--")
+                                || motivoNormalizado.equals("N/A")
+                                || motivoNormalizado.equals("NULL")) {
+
+                        throw new IllegalArgumentException(
+                                        "Debe ingresar un motivo de extensión válido.");
+                }
         }
 
         private void validarEstado(

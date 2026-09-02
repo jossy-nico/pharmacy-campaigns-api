@@ -1,5 +1,6 @@
 package cl.farmaciasahumada.campannas.controller;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -150,6 +151,30 @@ public class CampaniaController {
             return ResponseEntity.ok(
                     campaniaService.obtenerHistorialAuditoria(
                             id));
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "error",
+                            e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/{id}/extension")
+    public ResponseEntity<?> extenderCampania(
+            @PathVariable Long id,
+            @RequestParam("fechaFin") LocalDate fechaFin,
+            @RequestParam("motivo") String motivo) {
+
+        try {
+
+            return ResponseEntity.ok(
+                    campaniaService.extenderCampania(
+                            id,
+                            fechaFin,
+                            motivo));
 
         } catch (IllegalArgumentException e) {
 
