@@ -234,7 +234,7 @@ public class ArchivoService {
                                 "TABULAR");
 
                 definicion.setFormatosPermitidos(
-                                "[\"xlsx\",\"xls\"]");
+                                "[\"xlsx\",\"xls\",\"csv\"]");
 
                 /*
                  * El encabezado se detecta automáticamente.

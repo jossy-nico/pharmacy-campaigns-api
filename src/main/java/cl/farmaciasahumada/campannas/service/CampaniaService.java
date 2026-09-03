@@ -178,6 +178,119 @@ public class CampaniaService {
         }
 
         @Transactional
+        public Campania guardarCampaniaExcepcional(
+                        Campania campania,
+                        String motivo) {
+
+                validarMotivoCreacionExcepcional(
+                                motivo);
+
+                validarDatosEntrada(
+                                campania);
+
+                YearMonth periodo = obtenerPeriodo(
+                                campania.getAnio(),
+                                campania.getMes());
+
+                validarPeriodoDisponible(
+                                campania.getAnio(),
+                                campania.getMes(),
+                                null);
+
+                Archivo archivoProductos = validarArchivoProductos(
+                                campania.getArchivoProductosId(),
+                                periodo);
+
+                LocalDate fechaLimiteCarga = calcularFechaLimiteCarga(
+                                periodo);
+
+                /*
+                 * La creación excepcional se utiliza únicamente
+                 * cuando el plazo normal de creación ya finalizó.
+                 */
+                if (!LocalDate.now().isAfter(
+                                fechaLimiteCarga)) {
+
+                        throw new IllegalArgumentException(
+                                        "La campaña todavía se encuentra dentro "
+                                                        + "del plazo normal de carga. "
+                                                        + "Debe utilizar la creación normal.");
+                }
+
+                campania.setId(
+                                null);
+
+                campania.setNombre(
+                                campania.getNombre().trim());
+
+                campania.setCodigo(
+                                generarCodigo(periodo));
+
+                campania.setFechaInicio(
+                                periodo.atDay(1));
+
+                campania.setFechaFin(
+                                periodo.atEndOfMonth());
+
+                /*
+                 * Conservamos la fecha límite histórica real.
+                 *
+                 * Para septiembre 2026 seguirá siendo:
+                 * 2026-08-25
+                 *
+                 * No alteramos la configuración global.
+                 */
+                campania.setFechaLimiteCarga(
+                                fechaLimiteCarga);
+
+                campania.setArchivoProductosId(
+                                archivoProductos.getId());
+
+                campania.setEstado(
+                                "BORRADOR");
+
+                Campania guardada = campaniaRepository.saveAndFlush(
+                                campania);
+
+                CampaniaAuditoria auditoria = new CampaniaAuditoria();
+
+                auditoria.setCampania(
+                                guardada);
+
+                auditoria.setAccion(
+                                "CREACION_EXCEPCIONAL");
+
+                auditoria.setMotivo(
+                                motivo.trim());
+
+                /*
+                 * Antes de la creación no existía
+                 * una campaña que auditar.
+                 */
+                auditoria.setDatosAnteriores(
+                                new LinkedHashMap<>());
+
+                auditoria.setDatosNuevos(
+                                construirSnapshotAuditoria(
+                                                guardada));
+
+                /*
+                 * Temporalmente null hasta implementar
+                 * usuarios y roles al final del proyecto.
+                 */
+                auditoria.setUsuario(
+                                null);
+
+                auditoria.setFechaModificacion(
+                                OffsetDateTime.now());
+
+                campaniaAuditoriaRepository.saveAndFlush(
+                                auditoria);
+
+                return guardada;
+        }
+
+        @Transactional
         public Campania actualizar(
                         Long id,
                         Campania datos) {
@@ -453,6 +566,33 @@ public class CampaniaService {
                                 auditoria);
 
                 return extendida;
+        }
+
+        private void validarMotivoCreacionExcepcional(
+                        String motivo) {
+
+                if (motivo == null
+                                || motivo.isBlank()) {
+
+                        throw new IllegalArgumentException(
+                                        "El motivo de la creación excepcional "
+                                                        + "es obligatorio.");
+                }
+
+                String motivoNormalizado = motivo
+                                .trim()
+                                .toUpperCase(Locale.ROOT);
+
+                if (motivoNormalizado.equals("*")
+                                || motivoNormalizado.equals("-")
+                                || motivoNormalizado.equals("--")
+                                || motivoNormalizado.equals("N/A")
+                                || motivoNormalizado.equals("NULL")) {
+
+                        throw new IllegalArgumentException(
+                                        "Debe ingresar un motivo válido "
+                                                        + "para la creación excepcional.");
+                }
         }
 
         @Transactional

@@ -21,168 +21,190 @@ import cl.farmaciasahumada.campannas.service.CampaniaService;
 @RequestMapping("/api/campanias")
 public class CampaniaController {
 
-    private final CampaniaService campaniaService;
+        private final CampaniaService campaniaService;
 
-    public CampaniaController(
-            CampaniaService campaniaService) {
+        public CampaniaController(
+                        CampaniaService campaniaService) {
 
-        this.campaniaService = campaniaService;
-    }
-
-    @GetMapping
-    public ResponseEntity<?> listarCampanias() {
-
-        return ResponseEntity.ok(
-                campaniaService.listarCampanias());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerPorId(
-            @PathVariable Long id) {
-
-        try {
-
-            return ResponseEntity.ok(
-                    campaniaService.obtenerPorId(
-                            id));
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .notFound()
-                    .build();
+                this.campaniaService = campaniaService;
         }
-    }
 
-    @PostMapping
-    public ResponseEntity<?> crearCampania(
-            @RequestBody Campania campania) {
+        @GetMapping
+        public ResponseEntity<?> listarCampanias() {
 
-        try {
-
-            return ResponseEntity.ok(
-                    campaniaService.guardarCampania(
-                            campania));
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                return ResponseEntity.ok(
+                                campaniaService.listarCampanias());
         }
-    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarCampania(
-            @PathVariable Long id,
-            @RequestBody Campania campania) {
+        @GetMapping("/{id}")
+        public ResponseEntity<?> obtenerPorId(
+                        @PathVariable Long id) {
 
-        try {
+                try {
 
-            return ResponseEntity.ok(
-                    campaniaService.actualizar(
-                            id,
-                            campania));
+                        return ResponseEntity.ok(
+                                        campaniaService.obtenerPorId(
+                                                        id));
 
-        } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .notFound()
+                                        .build();
+                }
         }
-    }
 
-    @PatchMapping("/{id}/estado")
-    public ResponseEntity<?> cambiarEstado(
-            @PathVariable Long id,
-            @RequestParam("estado") String estado) {
+        @PostMapping
+        public ResponseEntity<?> crearCampania(
+                        @RequestBody Campania campania) {
 
-        try {
+                try {
 
-            return ResponseEntity.ok(
-                    campaniaService.cambiarEstado(
-                            id,
-                            estado));
+                        return ResponseEntity.ok(
+                                        campaniaService.guardarCampania(
+                                                        campania));
 
-        } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
 
-    @PatchMapping("/{id}/correccion")
-    public ResponseEntity<?> corregirCampania(
-            @PathVariable Long id,
-            @RequestParam("motivo") String motivo,
-            @RequestBody Campania campania) {
+        @PutMapping("/{id}")
+        public ResponseEntity<?> actualizarCampania(
+                        @PathVariable Long id,
+                        @RequestBody Campania campania) {
 
-        try {
+                try {
 
-            return ResponseEntity.ok(
-                    campaniaService.corregirCampania(
-                            id,
-                            campania,
-                            motivo));
+                        return ResponseEntity.ok(
+                                        campaniaService.actualizar(
+                                                        id,
+                                                        campania));
 
-        } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
 
-    @GetMapping("/{id}/auditoria")
-    public ResponseEntity<?> obtenerHistorialAuditoria(
-            @PathVariable Long id) {
+        @PatchMapping("/{id}/estado")
+        public ResponseEntity<?> cambiarEstado(
+                        @PathVariable Long id,
+                        @RequestParam("estado") String estado) {
 
-        try {
+                try {
 
-            return ResponseEntity.ok(
-                    campaniaService.obtenerHistorialAuditoria(
-                            id));
+                        return ResponseEntity.ok(
+                                        campaniaService.cambiarEstado(
+                                                        id,
+                                                        estado));
 
-        } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
 
-    @PatchMapping("/{id}/extension")
-    public ResponseEntity<?> extenderCampania(
-            @PathVariable Long id,
-            @RequestParam("fechaFin") LocalDate fechaFin,
-            @RequestParam("motivo") String motivo) {
+        @PatchMapping("/{id}/correccion")
+        public ResponseEntity<?> corregirCampania(
+                        @PathVariable Long id,
+                        @RequestParam("motivo") String motivo,
+                        @RequestBody Campania campania) {
 
-        try {
+                try {
 
-            return ResponseEntity.ok(
-                    campaniaService.extenderCampania(
-                            id,
-                            fechaFin,
-                            motivo));
+                        return ResponseEntity.ok(
+                                        campaniaService.corregirCampania(
+                                                        id,
+                                                        campania,
+                                                        motivo));
 
-        } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
+
+        @GetMapping("/{id}/auditoria")
+        public ResponseEntity<?> obtenerHistorialAuditoria(
+                        @PathVariable Long id) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        campaniaService.obtenerHistorialAuditoria(
+                                                        id));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
+        @PatchMapping("/{id}/extension")
+        public ResponseEntity<?> extenderCampania(
+                        @PathVariable Long id,
+                        @RequestParam("fechaFin") LocalDate fechaFin,
+                        @RequestParam("motivo") String motivo) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        campaniaService.extenderCampania(
+                                                        id,
+                                                        fechaFin,
+                                                        motivo));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
+        @PostMapping("/excepcional")
+        public ResponseEntity<?> crearCampaniaExcepcional(
+                        @RequestParam("motivo") String motivo,
+                        @RequestBody Campania campania) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        campaniaService.guardarCampaniaExcepcional(
+                                                        campania,
+                                                        motivo));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
 }
