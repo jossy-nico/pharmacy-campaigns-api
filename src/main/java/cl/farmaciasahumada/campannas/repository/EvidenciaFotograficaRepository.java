@@ -20,6 +20,6 @@ public interface EvidenciaFotograficaRepository
                         Long campaniaId,
                         String tipoEvidencia);
 
-        List<EvidenciaFotografica> findAllByReferenciaZonalIdOrderByFechaCargaDesc(
-                        Long referenciaZonalId);
+        List<EvidenciaFotografica> findAllByReferenciaOficialIdOrderByFechaCargaDesc(
+                        Long referenciaOficialId);
 }

@@ -82,6 +82,12 @@
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
 		</dependency>
+		<!-- OCR - Tesseract para Java -->
+		<dependency>
+			<groupId>net.sourceforge.tess4j</groupId>
+			<artifactId>tess4j</artifactId>
+			<version>5.20.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

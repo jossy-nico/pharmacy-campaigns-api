@@ -9,8 +9,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "evidencia_fotografica")
 public class EvidenciaFotografica {
 
@@ -41,8 +49,8 @@ public class EvidenciaFotografica {
      * el ID de la fotografía zonal contra
      * la cual deberá compararse.
      */
-    @Column(name = "referencia_zonal_id")
-    private Long referenciaZonalId;
+    @Column(name = "referencia_oficial_id")
+    private Long referenciaOficialId;
 
     @Column(name = "exhibidor", nullable = false, length = 150)
     private String exhibidor;
@@ -122,179 +130,4 @@ public class EvidenciaFotografica {
         }
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getCampaniaId() {
-        return campaniaId;
-    }
-
-    public void setCampaniaId(Long campaniaId) {
-        this.campaniaId = campaniaId;
-    }
-
-    public Long getFarmaciaId() {
-        return farmaciaId;
-    }
-
-    public void setFarmaciaId(Long farmaciaId) {
-        this.farmaciaId = farmaciaId;
-    }
-
-    public String getTipoEvidencia() {
-        return tipoEvidencia;
-    }
-
-    public void setTipoEvidencia(String tipoEvidencia) {
-        this.tipoEvidencia = tipoEvidencia;
-    }
-
-    public Long getReferenciaZonalId() {
-        return referenciaZonalId;
-    }
-
-    public void setReferenciaZonalId(Long referenciaZonalId) {
-        this.referenciaZonalId = referenciaZonalId;
-    }
-
-    public String getExhibidor() {
-        return exhibidor;
-    }
-
-    public void setExhibidor(String exhibidor) {
-        this.exhibidor = exhibidor;
-    }
-
-    public String getVista() {
-        return vista;
-    }
-
-    public void setVista(String vista) {
-        this.vista = vista;
-    }
-
-    public String getNombreOriginal() {
-        return nombreOriginal;
-    }
-
-    public void setNombreOriginal(String nombreOriginal) {
-        this.nombreOriginal = nombreOriginal;
-    }
-
-    public String getNombreAlmacenado() {
-        return nombreAlmacenado;
-    }
-
-    public void setNombreAlmacenado(String nombreAlmacenado) {
-        this.nombreAlmacenado = nombreAlmacenado;
-    }
-
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-    }
-
-    public String getExtension() {
-        return extension;
-    }
-
-    public void setExtension(String extension) {
-        this.extension = extension;
-    }
-
-    public Long getTamanoBytes() {
-        return tamanoBytes;
-    }
-
-    public void setTamanoBytes(Long tamanoBytes) {
-        this.tamanoBytes = tamanoBytes;
-    }
-
-    public String getRutaAlmacenamiento() {
-        return rutaAlmacenamiento;
-    }
-
-    public void setRutaAlmacenamiento(String rutaAlmacenamiento) {
-        this.rutaAlmacenamiento = rutaAlmacenamiento;
-    }
-
-    public String getHashSha256() {
-        return hashSha256;
-    }
-
-    public void setHashSha256(String hashSha256) {
-        this.hashSha256 = hashSha256;
-    }
-
-    public String getOrigen() {
-        return origen;
-    }
-
-    public void setOrigen(String origen) {
-        this.origen = origen;
-    }
-
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public String getResultado() {
-        return resultado;
-    }
-
-    public void setResultado(String resultado) {
-        this.resultado = resultado;
-    }
-
-    public String getObservacion() {
-        return observacion;
-    }
-
-    public void setObservacion(String observacion) {
-        this.observacion = observacion;
-    }
-
-    public OffsetDateTime getFechaCarga() {
-        return fechaCarga;
-    }
-
-    public void setFechaCarga(OffsetDateTime fechaCarga) {
-        this.fechaCarga = fechaCarga;
-    }
-
-    public OffsetDateTime getFechaModificacion() {
-        return fechaModificacion;
-    }
-
-    public void setFechaModificacion(OffsetDateTime fechaModificacion) {
-        this.fechaModificacion = fechaModificacion;
-    }
-
-    public String getUsuarioCarga() {
-        return usuarioCarga;
-    }
-
-    public void setUsuarioCarga(String usuarioCarga) {
-        this.usuarioCarga = usuarioCarga;
-    }
 }

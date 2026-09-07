@@ -17,183 +17,321 @@ import cl.farmaciasahumada.campannas.service.EvidenciaFotograficaService;
 @RequestMapping("/api/evidencias")
 public class EvidenciaFotograficaController {
 
-    private final EvidenciaFotograficaService evidenciaService;
+        private final EvidenciaFotograficaService evidenciaService;
 
-    public EvidenciaFotograficaController(
-            EvidenciaFotograficaService evidenciaService) {
+        public EvidenciaFotograficaController(
+                        EvidenciaFotograficaService evidenciaService) {
 
-        this.evidenciaService = evidenciaService;
-    }
-
-    /*
-     * =========================================================
-     * CARGA DE FOTO DE REFERENCIA ZONAL
-     * =========================================================
-     */
-
-    @PostMapping("/referencias")
-    public ResponseEntity<?> subirReferenciaZonal(
-            @RequestParam("campaniaId") Long campaniaId,
-            @RequestParam("exhibidor") String exhibidor,
-            @RequestParam("vista") String vista,
-            @RequestParam("imagen") MultipartFile imagen,
-            @RequestParam(value = "observacion", required = false) String observacion) {
-
-        try {
-
-            return ResponseEntity.ok(
-                    evidenciaService.subirReferenciaZonal(
-                            campaniaId,
-                            exhibidor,
-                            vista,
-                            imagen,
-                            observacion));
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
-
-        } catch (Exception e) {
-
-            return ResponseEntity
-                    .internalServerError()
-                    .body(Map.of(
-                            "error",
-                            "No fue posible almacenar la fotografía."));
+                this.evidenciaService = evidenciaService;
         }
-    }
 
-    /*
-     * =========================================================
-     * CARGA DE FOTO DE FARMACIA
-     * =========================================================
-     */
+        /*
+         * =========================================================
+         * CARGA DE REFERENCIA OFICIAL DEL PLANOGRAMA
+         * =========================================================
+         */
 
-    @PostMapping("/farmacias")
-    public ResponseEntity<?> subirEvidenciaFarmacia(
-            @RequestParam("campaniaId") Long campaniaId,
-            @RequestParam("farmaciaId") Long farmaciaId,
-            @RequestParam("referenciaZonalId") Long referenciaZonalId,
-            @RequestParam("imagen") MultipartFile imagen,
-            @RequestParam(value = "observacion", required = false) String observacion) {
+        @PostMapping("/referencias-oficiales")
+        public ResponseEntity<?> subirReferenciaOficial(
+                        @RequestParam("campaniaId") Long campaniaId,
+                        @RequestParam("exhibidor") String exhibidor,
+                        @RequestParam("vista") String vista,
+                        @RequestParam("imagen") MultipartFile imagen,
+                        @RequestParam(value = "observacion", required = false) String observacion) {
 
-        try {
+                try {
 
-            return ResponseEntity.ok(
-                    evidenciaService.subirEvidenciaFarmacia(
-                            campaniaId,
-                            farmaciaId,
-                            referenciaZonalId,
-                            imagen,
-                            observacion));
+                        return ResponseEntity.ok(
+                                        evidenciaService.subirReferenciaOficial(
+                                                        campaniaId,
+                                                        exhibidor,
+                                                        vista,
+                                                        imagen,
+                                                        observacion));
 
-        } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
 
-        } catch (Exception e) {
+                } catch (Exception e) {
 
-            return ResponseEntity
-                    .internalServerError()
-                    .body(Map.of(
-                            "error",
-                            "No fue posible almacenar la fotografía."));
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(Map.of(
+                                                        "error",
+                                                        "No fue posible almacenar la referencia oficial."));
+                }
         }
-    }
 
-    /*
-     * =========================================================
-     * CONSULTAS
-     * =========================================================
-     */
+        /*
+         * =========================================================
+         * CARGA DE EVIDENCIA ZONAL
+         * =========================================================
+         */
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerPorId(
-            @PathVariable Long id) {
+        @PostMapping("/zonales")
+        public ResponseEntity<?> subirEvidenciaZonal(
+                        @RequestParam("campaniaId") Long campaniaId,
+                        @RequestParam("farmaciaId") Long farmaciaId,
+                        @RequestParam("referenciaOficialId") Long referenciaOficialId,
+                        @RequestParam("imagen") MultipartFile imagen,
+                        @RequestParam(value = "observacion", required = false) String observacion) {
 
-        try {
+                try {
 
-            return ResponseEntity.ok(
-                    evidenciaService.obtenerPorId(
-                            id));
+                        return ResponseEntity.ok(
+                                        evidenciaService.subirEvidenciaZonal(
+                                                        campaniaId,
+                                                        farmaciaId,
+                                                        referenciaOficialId,
+                                                        imagen,
+                                                        observacion));
 
-        } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+
+                } catch (Exception e) {
+
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(Map.of(
+                                                        "error",
+                                                        "No fue posible almacenar la evidencia zonal."));
+                }
         }
-    }
 
-    @GetMapping("/campania/{campaniaId}")
-    public ResponseEntity<?> listarPorCampania(
-            @PathVariable Long campaniaId) {
+        /*
+         * =========================================================
+         * CARGA DE EVIDENCIA DE FARMACIA
+         * =========================================================
+         */
 
-        try {
+        @PostMapping("/farmacias")
+        public ResponseEntity<?> subirEvidenciaFarmacia(
+                        @RequestParam("campaniaId") Long campaniaId,
+                        @RequestParam("farmaciaId") Long farmaciaId,
+                        @RequestParam("referenciaOficialId") Long referenciaOficialId,
+                        @RequestParam("imagen") MultipartFile imagen,
+                        @RequestParam(value = "observacion", required = false) String observacion) {
 
-            return ResponseEntity.ok(
-                    evidenciaService.listarPorCampania(
-                            campaniaId));
+                try {
 
-        } catch (IllegalArgumentException e) {
+                        return ResponseEntity.ok(
+                                        evidenciaService.subirEvidenciaFarmacia(
+                                                        campaniaId,
+                                                        farmaciaId,
+                                                        referenciaOficialId,
+                                                        imagen,
+                                                        observacion));
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+
+                } catch (Exception e) {
+
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(Map.of(
+                                                        "error",
+                                                        "No fue posible almacenar la evidencia de farmacia."));
+                }
         }
-    }
 
-    @GetMapping("/campania/{campaniaId}/referencias")
-    public ResponseEntity<?> listarReferenciasZonales(
-            @PathVariable Long campaniaId) {
+        /*
+         * =========================================================
+         * OBTENER EVIDENCIA POR ID
+         * =========================================================
+         */
 
-        try {
+        @GetMapping("/{id}")
+        public ResponseEntity<?> obtenerPorId(
+                        @PathVariable Long id) {
 
-            return ResponseEntity.ok(
-                    evidenciaService.listarReferenciasZonales(
-                            campaniaId));
+                try {
 
-        } catch (IllegalArgumentException e) {
+                        return ResponseEntity.ok(
+                                        evidenciaService.obtenerPorId(
+                                                        id));
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
 
-    @GetMapping("/campania/{campaniaId}/farmacia/{farmaciaId}")
-    public ResponseEntity<?> listarPorFarmacia(
-            @PathVariable Long campaniaId,
-            @PathVariable Long farmaciaId) {
+        /*
+         * =========================================================
+         * LISTAR TODAS LAS EVIDENCIAS DE UNA CAMPAÑA
+         * =========================================================
+         */
 
-        try {
+        @GetMapping("/campania/{campaniaId}")
+        public ResponseEntity<?> listarPorCampania(
+                        @PathVariable Long campaniaId) {
 
-            return ResponseEntity.ok(
-                    evidenciaService.listarPorFarmacia(
-                            campaniaId,
-                            farmaciaId));
+                try {
 
-        } catch (IllegalArgumentException e) {
+                        return ResponseEntity.ok(
+                                        evidenciaService.listarPorCampania(
+                                                        campaniaId));
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
+
+        /*
+         * =========================================================
+         * LISTAR REFERENCIAS OFICIALES
+         * =========================================================
+         */
+
+        @GetMapping("/campania/{campaniaId}/referencias-oficiales")
+        public ResponseEntity<?> listarReferenciasOficiales(
+                        @PathVariable Long campaniaId) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        evidenciaService.listarReferenciasOficiales(
+                                                        campaniaId));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
+        /*
+         * =========================================================
+         * LISTAR EVIDENCIAS ZONALES
+         * =========================================================
+         */
+
+        @GetMapping("/campania/{campaniaId}/zonales")
+        public ResponseEntity<?> listarEvidenciasZonales(
+                        @PathVariable Long campaniaId) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        evidenciaService.listarEvidenciasZonales(
+                                                        campaniaId));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
+        /*
+         * =========================================================
+         * LISTAR EVIDENCIAS DE FARMACIA
+         * =========================================================
+         */
+
+        @GetMapping("/campania/{campaniaId}/farmacias")
+        public ResponseEntity<?> listarEvidenciasFarmacia(
+                        @PathVariable Long campaniaId) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        evidenciaService.listarEvidenciasFarmacia(
+                                                        campaniaId));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
+        /*
+         * =========================================================
+         * LISTAR EVIDENCIAS DE UNA FARMACIA
+         * =========================================================
+         */
+
+        @GetMapping("/campania/{campaniaId}/farmacia/{farmaciaId}")
+        public ResponseEntity<?> listarPorFarmacia(
+                        @PathVariable Long campaniaId,
+                        @PathVariable Long farmaciaId) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        evidenciaService.listarPorFarmacia(
+                                                        campaniaId,
+                                                        farmaciaId));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
+
+        /*
+         * =========================================================
+         * LISTAR EVIDENCIAS ASOCIADAS A REFERENCIA OFICIAL
+         * =========================================================
+         */
+
+        @GetMapping("/referencia-oficial/{referenciaOficialId}/evidencias")
+        public ResponseEntity<?> listarPorReferenciaOficial(
+                        @PathVariable Long referenciaOficialId) {
+
+                try {
+
+                        return ResponseEntity.ok(
+                                        evidenciaService.listarPorReferenciaOficial(
+                                                        referenciaOficialId));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
+        }
 }
