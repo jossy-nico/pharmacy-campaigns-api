@@ -88,6 +88,12 @@
 			<artifactId>tess4j</artifactId>
 			<version>5.20.0</version>
 		</dependency>
+		<!-- OpenCV - Visión computacional -->
+		<dependency>
+			<groupId>org.openpnp</groupId>
+			<artifactId>opencv</artifactId>
+			<version>4.9.0-0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

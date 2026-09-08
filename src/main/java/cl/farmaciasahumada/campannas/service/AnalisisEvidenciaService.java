@@ -10,23 +10,31 @@ import cl.farmaciasahumada.campannas.model.AnalisisEvidencia;
 import cl.farmaciasahumada.campannas.model.EvidenciaFotografica;
 import cl.farmaciasahumada.campannas.repository.AnalisisEvidenciaRepository;
 import cl.farmaciasahumada.campannas.repository.EvidenciaFotograficaRepository;
+import cl.farmaciasahumada.campannas.service.ocr.OcrService;
 
 @Service
 public class AnalisisEvidenciaService {
 
         private static final String REFERENCIA_OFICIAL = "REFERENCIA_OFICIAL";
+
         private static final String EVIDENCIA_ZONAL = "EVIDENCIA_ZONAL";
+
         private static final String EVIDENCIA_FARMACIA = "EVIDENCIA_FARMACIA";
 
         private final AnalisisEvidenciaRepository analisisRepository;
         private final EvidenciaFotograficaRepository evidenciaRepository;
+        private final OcrService ocrService;
 
         public AnalisisEvidenciaService(
                         AnalisisEvidenciaRepository analisisRepository,
-                        EvidenciaFotograficaRepository evidenciaRepository) {
+                        EvidenciaFotograficaRepository evidenciaRepository,
+                        OcrService ocrService) {
 
                 this.analisisRepository = analisisRepository;
+
                 this.evidenciaRepository = evidenciaRepository;
+
+                this.ocrService = ocrService;
         }
 
         /*
@@ -46,7 +54,8 @@ public class AnalisisEvidenciaService {
                 }
 
                 EvidenciaFotografica evidenciaEvaluada = evidenciaRepository
-                                .findById(evidenciaEvaluadaId)
+                                .findById(
+                                                evidenciaEvaluadaId)
                                 .orElseThrow(
                                                 () -> new IllegalArgumentException(
                                                                 "No existe la evidencia con id: "
@@ -61,7 +70,8 @@ public class AnalisisEvidenciaService {
                                         "La evidencia no posee una farmacia asociada.");
                 }
 
-                if (evidenciaEvaluada.getReferenciaOficialId() == null) {
+                if (evidenciaEvaluada
+                                .getReferenciaOficialId() == null) {
 
                         throw new IllegalArgumentException(
                                         "La evidencia no posee una referencia oficial asociada.");
@@ -69,7 +79,8 @@ public class AnalisisEvidenciaService {
 
                 EvidenciaFotografica referenciaOficial = evidenciaRepository
                                 .findById(
-                                                evidenciaEvaluada.getReferenciaOficialId())
+                                                evidenciaEvaluada
+                                                                .getReferenciaOficialId())
                                 .orElseThrow(
                                                 () -> new IllegalArgumentException(
                                                                 "No existe la referencia oficial asociada."));
@@ -86,11 +97,6 @@ public class AnalisisEvidenciaService {
                 analisis.setReferenciaOficialId(
                                 referenciaOficial.getId());
 
-                /*
-                 * Todavía no se ejecuta OCR ni visión computacional.
-                 * El análisis queda preparado para que posteriormente
-                 * el motor procese la referencia oficial y la evidencia.
-                 */
                 analisis.setEstado(
                                 "PENDIENTE");
 
@@ -121,8 +127,117 @@ public class AnalisisEvidenciaService {
                 analisis.setError(
                                 null);
 
-                return analisisRepository.saveAndFlush(
-                                analisis);
+                return analisisRepository
+                                .saveAndFlush(
+                                                analisis);
+        }
+
+        /*
+         * =========================================================
+         * PROCESAR OCR DEL ANÁLISIS
+         *
+         * Ejecuta OCR sobre:
+         *
+         * - REFERENCIA_OFICIAL
+         * - EVIDENCIA_EVALUADA
+         *
+         * y guarda ambos textos en analisis_evidencia.
+         *
+         * El análisis continúa PENDIENTE porque todavía
+         * falta implementar comparación y resultado final.
+         * =========================================================
+         */
+
+        @Transactional
+        public AnalisisEvidencia procesarOcr(
+                        Long analisisId) {
+
+                if (analisisId == null) {
+
+                        throw new IllegalArgumentException(
+                                        "El id del análisis es obligatorio.");
+                }
+
+                AnalisisEvidencia analisis = analisisRepository
+                                .findById(
+                                                analisisId)
+                                .orElseThrow(
+                                                () -> new IllegalArgumentException(
+                                                                "No existe el análisis con id: "
+                                                                                + analisisId));
+
+                if (analisis.getEvidenciaEvaluadaId() == null) {
+
+                        throw new IllegalArgumentException(
+                                        "El análisis no posee una evidencia evaluada.");
+                }
+
+                if (analisis.getReferenciaOficialId() == null) {
+
+                        throw new IllegalArgumentException(
+                                        "El análisis no posee una referencia oficial.");
+                }
+
+                EvidenciaFotografica evidenciaEvaluada = evidenciaRepository
+                                .findById(
+                                                analisis.getEvidenciaEvaluadaId())
+                                .orElseThrow(
+                                                () -> new IllegalArgumentException(
+                                                                "No existe la evidencia evaluada asociada al análisis."));
+
+                EvidenciaFotografica referenciaOficial = evidenciaRepository
+                                .findById(
+                                                analisis.getReferenciaOficialId())
+                                .orElseThrow(
+                                                () -> new IllegalArgumentException(
+                                                                "No existe la referencia oficial asociada al análisis."));
+
+                /*
+                 * Volvemos a validar las relaciones antes
+                 * de ejecutar el procesamiento.
+                 */
+                validarTipoEvidenciaEvaluada(
+                                evidenciaEvaluada);
+
+                validarRelacion(
+                                evidenciaEvaluada,
+                                referenciaOficial);
+
+                /*
+                 * OCR de la fotografía oficial.
+                 */
+                String textoReferencia = ocrService.extraerTexto(
+                                referenciaOficial
+                                                .getRutaAlmacenamiento());
+
+                /*
+                 * OCR de la fotografía que estamos evaluando:
+                 * zonal o farmacia.
+                 */
+                String textoEvidencia = ocrService.extraerTexto(
+                                evidenciaEvaluada
+                                                .getRutaAlmacenamiento());
+
+                analisis.setTextoOcrReferencia(
+                                textoReferencia);
+
+                analisis.setTextoOcrEvidencia(
+                                textoEvidencia);
+
+                /*
+                 * El análisis todavía no está terminado.
+                 *
+                 * OCR es solamente una etapa del proceso.
+                 */
+                analisis.setEstado(
+                                "PENDIENTE");
+
+                analisis.setError(
+                                null);
+
+                return analisisRepository
+                                .saveAndFlush(
+                                                analisis);
         }
 
         /*
@@ -199,17 +314,14 @@ public class AnalisisEvidenciaService {
 
                 if (!REFERENCIA_OFICIAL.equals(
                                 normalizar(
-                                                referenciaOficial.getTipoEvidencia()))) {
+                                                referenciaOficial
+                                                                .getTipoEvidencia()))) {
 
                         throw new IllegalArgumentException(
                                         "La fotografía asociada no corresponde "
                                                         + "a una referencia oficial del planograma.");
                 }
 
-                /*
-                 * La referencia oficial no debe pertenecer
-                 * a ninguna farmacia.
-                 */
                 if (referenciaOficial.getFarmaciaId() != null) {
 
                         throw new IllegalArgumentException(
@@ -217,11 +329,8 @@ public class AnalisisEvidenciaService {
                                                         + "y su estructura no es válida.");
                 }
 
-                /*
-                 * Una referencia oficial tampoco debe apuntar
-                 * a otra referencia.
-                 */
-                if (referenciaOficial.getReferenciaOficialId() != null) {
+                if (referenciaOficial
+                                .getReferenciaOficialId() != null) {
 
                         throw new IllegalArgumentException(
                                         "La referencia oficial posee una relación inválida.");
@@ -230,7 +339,8 @@ public class AnalisisEvidenciaService {
                 if (!evidenciaEvaluada
                                 .getCampaniaId()
                                 .equals(
-                                                referenciaOficial.getCampaniaId())) {
+                                                referenciaOficial
+                                                                .getCampaniaId())) {
 
                         throw new IllegalArgumentException(
                                         "La evidencia y la referencia oficial "
@@ -241,7 +351,8 @@ public class AnalisisEvidenciaService {
                                 evidenciaEvaluada.getExhibidor())
                                 .equals(
                                                 normalizar(
-                                                                referenciaOficial.getExhibidor()))) {
+                                                                referenciaOficial
+                                                                                .getExhibidor()))) {
 
                         throw new IllegalArgumentException(
                                         "La evidencia y la referencia oficial "
@@ -252,22 +363,19 @@ public class AnalisisEvidenciaService {
                                 evidenciaEvaluada.getVista())
                                 .equals(
                                                 normalizar(
-                                                                referenciaOficial.getVista()))) {
+                                                                referenciaOficial
+                                                                                .getVista()))) {
 
                         throw new IllegalArgumentException(
                                         "La evidencia y la referencia oficial "
                                                         + "corresponden a vistas diferentes.");
                 }
 
-                /*
-                 * Validación adicional:
-                 * la referencia cargada debe ser exactamente
-                 * la indicada por la evidencia.
-                 */
                 if (!referenciaOficial
                                 .getId()
                                 .equals(
-                                                evidenciaEvaluada.getReferenciaOficialId())) {
+                                                evidenciaEvaluada
+                                                                .getReferenciaOficialId())) {
 
                         throw new IllegalArgumentException(
                                         "La evidencia no corresponde "
@@ -290,7 +398,10 @@ public class AnalisisEvidenciaService {
 
                 return valor
                                 .trim()
-                                .toUpperCase(Locale.ROOT)
-                                .replaceAll("\\s+", "_");
+                                .toUpperCase(
+                                                Locale.ROOT)
+                                .replaceAll(
+                                                "\\s+",
+                                                "_");
         }
 }

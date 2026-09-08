@@ -57,6 +57,48 @@ public class AnalisisEvidenciaController {
 
     /*
      * =========================================================
+     * PROCESAR OCR DE UN ANÁLISIS
+     *
+     * Ejecuta OCR sobre:
+     * - REFERENCIA_OFICIAL
+     * - EVIDENCIA_EVALUADA
+     *
+     * Guarda los resultados en:
+     * - texto_ocr_referencia
+     * - texto_ocr_evidencia
+     * =========================================================
+     */
+
+    @PostMapping("/{analisisId}/ocr")
+    public ResponseEntity<?> procesarOcr(
+            @PathVariable Long analisisId) {
+
+        try {
+
+            return ResponseEntity.ok(
+                    analisisService.procesarOcr(
+                            analisisId));
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "error",
+                            e.getMessage()));
+
+        } catch (IllegalStateException e) {
+
+            return ResponseEntity
+                    .internalServerError()
+                    .body(Map.of(
+                            "error",
+                            e.getMessage()));
+        }
+    }
+
+    /*
+     * =========================================================
      * OBTENER ANÁLISIS POR ID
      * =========================================================
      */
