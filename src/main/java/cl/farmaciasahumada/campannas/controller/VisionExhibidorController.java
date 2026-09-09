@@ -30,920 +30,964 @@ import cl.farmaciasahumada.campannas.service.analisis.AnalisisTextoOcrService.Re
 @RequestMapping("/api/vision")
 public class VisionExhibidorController {
 
-    private final VisionExhibidorService visionService;
-    private final CalidadImagenService calidadImagenService;
-    private final EvidenciaFotograficaService evidenciaService;
-    private final AlineacionReferenciaService alineacionReferenciaService;
-    private final OcrService ocrService;
-    private final AnalisisTextoOcrService analisisTextoOcrService;
+        private final VisionExhibidorService visionService;
+        private final CalidadImagenService calidadImagenService;
+        private final EvidenciaFotograficaService evidenciaService;
+        private final AlineacionReferenciaService alineacionReferenciaService;
+        private final OcrService ocrService;
+        private final AnalisisTextoOcrService analisisTextoOcrService;
 
-    public VisionExhibidorController(
-            VisionExhibidorService visionService,
-            CalidadImagenService calidadImagenService,
-            EvidenciaFotograficaService evidenciaService,
-            AlineacionReferenciaService alineacionReferenciaService,
-            OcrService ocrService,
-            AnalisisTextoOcrService analisisTextoOcrService) {
+        public VisionExhibidorController(
+                        VisionExhibidorService visionService,
+                        CalidadImagenService calidadImagenService,
+                        EvidenciaFotograficaService evidenciaService,
+                        AlineacionReferenciaService alineacionReferenciaService,
+                        OcrService ocrService,
+                        AnalisisTextoOcrService analisisTextoOcrService) {
 
-        this.visionService = visionService;
+                this.visionService = visionService;
 
-        this.calidadImagenService = calidadImagenService;
+                this.calidadImagenService = calidadImagenService;
 
-        this.evidenciaService = evidenciaService;
-        this.alineacionReferenciaService = alineacionReferenciaService;
-        this.ocrService = ocrService;
-        this.analisisTextoOcrService = analisisTextoOcrService;
-    }
-
-    /*
-     * =========================================================
-     * DETECTAR REGIÓN PRINCIPAL
-     * =========================================================
-     */
-
-    @PostMapping("/evidencia/{evidenciaId}/detectar-region")
-    public ResponseEntity<?> detectarRegion(
-            @PathVariable Long evidenciaId) {
-
-        try {
-
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
-
-            RegionDetectada region = visionService.detectarRegionPrincipal(
-                    evidencia.getRutaAlmacenamiento());
-
-            Map<String, Object> respuesta = new LinkedHashMap<>();
-
-            respuesta.put(
-                    "evidenciaId",
-                    evidencia.getId());
-
-            respuesta.put(
-                    "tipoEvidencia",
-                    evidencia.getTipoEvidencia());
-
-            respuesta.put(
-                    "exhibidor",
-                    evidencia.getExhibidor());
-
-            respuesta.put(
-                    "vista",
-                    evidencia.getVista());
-
-            respuesta.put(
-                    "x",
-                    region.x());
-
-            respuesta.put(
-                    "y",
-                    region.y());
-
-            respuesta.put(
-                    "ancho",
-                    region.ancho());
-
-            respuesta.put(
-                    "alto",
-                    region.alto());
-
-            respuesta.put(
-                    "proporcionArea",
-                    region.proporcionArea());
-
-            respuesta.put(
-                    "rectangularidad",
-                    region.rectangularidad());
-
-            respuesta.put(
-                    "relacionAspecto",
-                    region.relacionAspecto());
-
-            respuesta.put(
-                    "tocaBorde",
-                    region.tocaBorde());
-
-            respuesta.put(
-                    "puntaje",
-                    region.puntaje());
-
-            return ResponseEntity.ok(
-                    respuesta);
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
-
-        } catch (IllegalStateException e) {
-
-            return ResponseEntity
-                    .internalServerError()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                this.evidenciaService = evidenciaService;
+                this.alineacionReferenciaService = alineacionReferenciaService;
+                this.ocrService = ocrService;
+                this.analisisTextoOcrService = analisisTextoOcrService;
         }
-    }
 
-    /*
-     * =========================================================
-     * LISTAR REGIONES CANDIDATAS
-     * =========================================================
-     */
+        /*
+         * =========================================================
+         * DETECTAR REGIÓN PRINCIPAL
+         * =========================================================
+         */
 
-    @PostMapping("/evidencia/{evidenciaId}/candidatas")
-    public ResponseEntity<?> detectarCandidatas(
-            @PathVariable Long evidenciaId) {
+        @PostMapping("/evidencia/{evidenciaId}/detectar-region")
+        public ResponseEntity<?> detectarRegion(
+                        @PathVariable Long evidenciaId) {
 
-        try {
+                try {
 
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
 
-            List<RegionDetectada> regiones = visionService.detectarRegionesCandidatas(
-                    evidencia.getRutaAlmacenamiento());
+                        RegionDetectada region = visionService.detectarRegionPrincipal(
+                                        evidencia.getRutaAlmacenamiento());
 
-            return ResponseEntity.ok(
-                    regiones);
+                        Map<String, Object> respuesta = new LinkedHashMap<>();
 
-        } catch (IllegalArgumentException e) {
+                        respuesta.put(
+                                        "evidenciaId",
+                                        evidencia.getId());
 
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        respuesta.put(
+                                        "tipoEvidencia",
+                                        evidencia.getTipoEvidencia());
 
-        } catch (IllegalStateException e) {
+                        respuesta.put(
+                                        "exhibidor",
+                                        evidencia.getExhibidor());
 
-            return ResponseEntity
-                    .internalServerError()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        respuesta.put(
+                                        "vista",
+                                        evidencia.getVista());
+
+                        respuesta.put(
+                                        "x",
+                                        region.x());
+
+                        respuesta.put(
+                                        "y",
+                                        region.y());
+
+                        respuesta.put(
+                                        "ancho",
+                                        region.ancho());
+
+                        respuesta.put(
+                                        "alto",
+                                        region.alto());
+
+                        respuesta.put(
+                                        "proporcionArea",
+                                        region.proporcionArea());
+
+                        respuesta.put(
+                                        "rectangularidad",
+                                        region.rectangularidad());
+
+                        respuesta.put(
+                                        "relacionAspecto",
+                                        region.relacionAspecto());
+
+                        respuesta.put(
+                                        "tocaBorde",
+                                        region.tocaBorde());
+
+                        respuesta.put(
+                                        "puntaje",
+                                        region.puntaje());
+
+                        return ResponseEntity.ok(
+                                        respuesta);
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+
+                } catch (IllegalStateException e) {
+
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
 
-    /*
-     * =========================================================
-     * ANALIZAR CALIDAD DE LA FOTOGRAFÍA
-     * =========================================================
-     */
+        /*
+         * =========================================================
+         * LISTAR REGIONES CANDIDATAS
+         * =========================================================
+         */
 
-    @PostMapping("/evidencia/{evidenciaId}/calidad")
-    public ResponseEntity<?> analizarCalidad(
-            @PathVariable Long evidenciaId) {
+        @PostMapping("/evidencia/{evidenciaId}/candidatas")
+        public ResponseEntity<?> detectarCandidatas(
+                        @PathVariable Long evidenciaId) {
 
-        try {
+                try {
 
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
 
-            CalidadImagenResultado calidad = calidadImagenService.analizar(
-                    evidencia.getRutaAlmacenamiento());
+                        List<RegionDetectada> regiones = visionService.detectarRegionesCandidatas(
+                                        evidencia.getRutaAlmacenamiento());
 
-            Map<String, Object> respuesta = new LinkedHashMap<>();
+                        return ResponseEntity.ok(
+                                        regiones);
 
-            respuesta.put(
-                    "evidenciaId",
-                    evidencia.getId());
+                } catch (IllegalArgumentException e) {
 
-            respuesta.put(
-                    "tipoEvidencia",
-                    evidencia.getTipoEvidencia());
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
 
-            respuesta.put(
-                    "exhibidor",
-                    evidencia.getExhibidor());
+                } catch (IllegalStateException e) {
 
-            respuesta.put(
-                    "vista",
-                    evidencia.getVista());
-
-            respuesta.put(
-                    "ancho",
-                    calidad.ancho());
-
-            respuesta.put(
-                    "alto",
-                    calidad.alto());
-
-            respuesta.put(
-                    "totalPixeles",
-                    calidad.totalPixeles());
-
-            respuesta.put(
-                    "nitidez",
-                    calidad.nitidez());
-
-            respuesta.put(
-                    "brilloPromedio",
-                    calidad.brilloPromedio());
-
-            respuesta.put(
-                    "contraste",
-                    calidad.contraste());
-
-            respuesta.put(
-                    "porcentajeSobreexpuesto",
-                    calidad.porcentajeSobreexpuesto());
-
-            respuesta.put(
-                    "porcentajeOscuro",
-                    calidad.porcentajeOscuro());
-
-            respuesta.put(
-                    "porcentajeReflejo",
-                    calidad.porcentajeReflejo());
-
-            respuesta.put(
-                    "estadoCalidad",
-                    calidad.estadoCalidad());
-
-            respuesta.put(
-                    "advertencias",
-                    calidad.advertencias());
-
-            return ResponseEntity.ok(
-                    respuesta);
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
-
-        } catch (IllegalStateException e) {
-
-            return ResponseEntity
-                    .internalServerError()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
-    /*
-     * =========================================================
-     * IMAGEN DE DIAGNÓSTICO DE REGIONES CANDIDATAS
-     *
-     * Devuelve un PNG con los rectángulos detectados
-     * dibujados sobre la fotografía.
-     * =========================================================
-     */
 
-    @GetMapping(value = "/evidencia/{evidenciaId}/debug", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<?> generarDebug(
-            @PathVariable Long evidenciaId) {
+        /*
+         * =========================================================
+         * ANALIZAR CALIDAD DE LA FOTOGRAFÍA
+         * =========================================================
+         */
 
-        try {
+        @PostMapping("/evidencia/{evidenciaId}/calidad")
+        public ResponseEntity<?> analizarCalidad(
+                        @PathVariable Long evidenciaId) {
 
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
+                try {
 
-            byte[] imagen = visionService.generarImagenDiagnostico(
-                    evidencia.getRutaAlmacenamiento());
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
 
-            return ResponseEntity
-                    .ok()
-                    .contentType(
-                            MediaType.IMAGE_PNG)
-                    .body(
-                            imagen);
+                        CalidadImagenResultado calidad = calidadImagenService.analizar(
+                                        evidencia.getRutaAlmacenamiento());
 
-        } catch (IllegalArgumentException e) {
+                        Map<String, Object> respuesta = new LinkedHashMap<>();
 
-            return ResponseEntity
-                    .badRequest()
-                    .contentType(
-                            MediaType.APPLICATION_JSON)
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
+                        respuesta.put(
+                                        "evidenciaId",
+                                        evidencia.getId());
 
-        } catch (IllegalStateException e) {
+                        respuesta.put(
+                                        "tipoEvidencia",
+                                        evidencia.getTipoEvidencia());
 
-            return ResponseEntity
-                    .internalServerError()
-                    .contentType(
-                            MediaType.APPLICATION_JSON)
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
+                        respuesta.put(
+                                        "exhibidor",
+                                        evidencia.getExhibidor());
+
+                        respuesta.put(
+                                        "vista",
+                                        evidencia.getVista());
+
+                        respuesta.put(
+                                        "ancho",
+                                        calidad.ancho());
+
+                        respuesta.put(
+                                        "alto",
+                                        calidad.alto());
+
+                        respuesta.put(
+                                        "totalPixeles",
+                                        calidad.totalPixeles());
+
+                        respuesta.put(
+                                        "nitidez",
+                                        calidad.nitidez());
+
+                        respuesta.put(
+                                        "brilloPromedio",
+                                        calidad.brilloPromedio());
+
+                        respuesta.put(
+                                        "contraste",
+                                        calidad.contraste());
+
+                        respuesta.put(
+                                        "porcentajeSobreexpuesto",
+                                        calidad.porcentajeSobreexpuesto());
+
+                        respuesta.put(
+                                        "porcentajeOscuro",
+                                        calidad.porcentajeOscuro());
+
+                        respuesta.put(
+                                        "porcentajeReflejo",
+                                        calidad.porcentajeReflejo());
+
+                        /*
+                         * =====================================================
+                         * INFORMACIÓN VISUAL
+                         * =====================================================
+                         */
+
+                        respuesta.put(
+                                        "entropiaVisual",
+                                        calidad.entropiaVisual());
+
+                        respuesta.put(
+                                        "densidadBordes",
+                                        calidad.densidadBordes());
+
+                        respuesta.put(
+                                        "saturacionPromedio",
+                                        calidad.saturacionPromedio());
+
+                        respuesta.put(
+                                        "dominanciaColor",
+                                        calidad.dominanciaColor());
+
+                        /*
+                         * =====================================================
+                         * DECISIÓN DE CALIDAD
+                         * =====================================================
+                         */
+
+                        respuesta.put(
+                                        "estadoCalidad",
+                                        calidad.estadoCalidad());
+
+                        respuesta.put(
+                                        "fotoValidaParaAnalisis",
+                                        calidad.fotoValidaParaAnalisis());
+
+                        respuesta.put(
+                                        "requiereNuevaFoto",
+                                        calidad.requiereNuevaFoto());
+
+                        respuesta.put(
+                                        "motivoPrincipal",
+                                        calidad.motivoPrincipal());
+
+                        respuesta.put(
+                                        "mensaje",
+                                        calidad.mensaje());
+
+                        respuesta.put(
+                                        "advertencias",
+                                        calidad.advertencias());
+
+                        return ResponseEntity.ok(
+                                        respuesta);
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+
+                } catch (IllegalStateException e) {
+
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
-    /*
-     * =========================================================
-     * ANALIZAR ALINEACIÓN CON REFERENCIA OFICIAL
-     *
-     * La evidencia evaluada debe poseer:
-     * referenciaOficialId
-     *
-     * Ejemplo:
-     *
-     * EVIDENCIA_FARMACIA 7
-     * ↓
-     * referenciaOficialId = 4
-     * ↓
-     * REFERENCIA_OFICIAL 4
-     *
-     * OpenCV compara ambas mediante ORB.
-     * =========================================================
-     */
+        /*
+         * =========================================================
+         * IMAGEN DE DIAGNÓSTICO DE REGIONES CANDIDATAS
+         *
+         * Devuelve un PNG con los rectángulos detectados
+         * dibujados sobre la fotografía.
+         * =========================================================
+         */
 
-    @PostMapping("/evidencia/{evidenciaId}/alineacion")
-    public ResponseEntity<?> analizarAlineacion(
-            @PathVariable Long evidenciaId) {
+        @GetMapping(value = "/evidencia/{evidenciaId}/debug", produces = MediaType.IMAGE_PNG_VALUE)
+        public ResponseEntity<?> generarDebug(
+                        @PathVariable Long evidenciaId) {
 
-        try {
+                try {
 
-            /*
-             * Evidencia que queremos evaluar.
-             */
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
 
-            if (evidencia.getReferenciaOficialId() == null) {
+                        byte[] imagen = visionService.generarImagenDiagnostico(
+                                        evidencia.getRutaAlmacenamiento());
 
-                throw new IllegalArgumentException(
-                        "La evidencia no posee una referencia oficial asociada.");
-            }
+                        return ResponseEntity
+                                        .ok()
+                                        .contentType(
+                                                        MediaType.IMAGE_PNG)
+                                        .body(
+                                                        imagen);
 
-            /*
-             * Obtener automáticamente la referencia oficial.
-             */
-            EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
-                    evidencia.getReferenciaOficialId());
+                } catch (IllegalArgumentException e) {
 
-            /*
-             * Ejecutar comparación visual ORB.
-             */
-            ResultadoAlineacion resultado = alineacionReferenciaService.analizar(
-                    referenciaOficial.getRutaAlmacenamiento(),
-                    evidencia.getRutaAlmacenamiento());
+                        return ResponseEntity
+                                        .badRequest()
+                                        .contentType(
+                                                        MediaType.APPLICATION_JSON)
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
 
-            Map<String, Object> respuesta = new LinkedHashMap<>();
+                } catch (IllegalStateException e) {
 
-            respuesta.put(
-                    "evidenciaId",
-                    evidencia.getId());
-
-            respuesta.put(
-                    "tipoEvidencia",
-                    evidencia.getTipoEvidencia());
-
-            respuesta.put(
-                    "referenciaOficialId",
-                    referenciaOficial.getId());
-
-            respuesta.put(
-                    "exhibidor",
-                    evidencia.getExhibidor());
-
-            respuesta.put(
-                    "vista",
-                    evidencia.getVista());
-
-            respuesta.put(
-                    "puntosReferencia",
-                    resultado.puntosReferencia());
-
-            respuesta.put(
-                    "puntosEvidencia",
-                    resultado.puntosEvidencia());
-
-            respuesta.put(
-                    "coincidenciasTotales",
-                    resultado.coincidenciasTotales());
-
-            respuesta.put(
-                    "coincidenciasValidas",
-                    resultado.coincidenciasValidas());
-
-            respuesta.put(
-                    "porcentajeCoincidencia",
-                    resultado.porcentajeCoincidencia());
-
-            respuesta.put(
-                    "coincidenciasGeometricas",
-                    resultado.coincidenciasGeometricas());
-
-            respuesta.put(
-                    "porcentajeInliers",
-                    resultado.porcentajeInliers());
-
-            respuesta.put(
-                    "homografiaCalculada",
-                    resultado.homografiaCalculada());
-
-            respuesta.put(
-                    "alineacionPosible",
-                    resultado.alineacionPosible());
-
-            return ResponseEntity.ok(
-                    respuesta);
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
-
-        } catch (IllegalStateException e) {
-
-            return ResponseEntity
-                    .internalServerError()
-                    .body(Map.of(
-                            "error",
-                            e.getMessage()));
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .contentType(
+                                                        MediaType.APPLICATION_JSON)
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
+                }
         }
-    }
-    /*
-     * =========================================================
-     * DEBUG VISUAL DE ALINEACIÓN SIFT + RANSAC
-     *
-     * Genera una imagen PNG mostrando:
-     *
-     * REFERENCIA OFICIAL | EVIDENCIA
-     *
-     * y dibuja únicamente las coincidencias geométricas
-     * aceptadas por RANSAC.
-     * =========================================================
-     */
+        /*
+         * =========================================================
+         * ANALIZAR ALINEACIÓN CON REFERENCIA OFICIAL
+         *
+         * La evidencia evaluada debe poseer:
+         * referenciaOficialId
+         *
+         * Ejemplo:
+         *
+         * EVIDENCIA_FARMACIA 7
+         * ↓
+         * referenciaOficialId = 4
+         * ↓
+         * REFERENCIA_OFICIAL 4
+         *
+         * OpenCV compara ambas mediante ORB.
+         * =========================================================
+         */
 
-    @GetMapping(value = "/evidencia/{evidenciaId}/alineacion/debug", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<?> generarDebugAlineacion(
-            @PathVariable Long evidenciaId) {
+        @PostMapping("/evidencia/{evidenciaId}/alineacion")
+        public ResponseEntity<?> analizarAlineacion(
+                        @PathVariable Long evidenciaId) {
 
-        try {
+                try {
 
-            /*
-             * =====================================================
-             * 1. OBTENER EVIDENCIA
-             * =====================================================
-             */
+                        /*
+                         * Evidencia que queremos evaluar.
+                         */
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
 
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
+                        if (evidencia.getReferenciaOficialId() == null) {
 
-            /*
-             * La evidencia zonal o farmacia debe apuntar
-             * directamente a su REFERENCIA_OFICIAL.
-             */
-            if (evidencia.getReferenciaOficialId() == null) {
+                                throw new IllegalArgumentException(
+                                                "La evidencia no posee una referencia oficial asociada.");
+                        }
 
-                throw new IllegalArgumentException(
-                        "La evidencia no posee una referencia oficial asociada.");
-            }
+                        /*
+                         * Obtener automáticamente la referencia oficial.
+                         */
+                        EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
+                                        evidencia.getReferenciaOficialId());
 
-            /*
-             * =====================================================
-             * 2. OBTENER REFERENCIA OFICIAL
-             * =====================================================
-             */
+                        /*
+                         * Ejecutar comparación visual ORB.
+                         */
+                        ResultadoAlineacion resultado = alineacionReferenciaService.analizar(
+                                        referenciaOficial.getRutaAlmacenamiento(),
+                                        evidencia.getRutaAlmacenamiento());
 
-            EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
-                    evidencia.getReferenciaOficialId());
+                        Map<String, Object> respuesta = new LinkedHashMap<>();
 
-            /*
-             * =====================================================
-             * 3. GENERAR IMAGEN DE DIAGNÓSTICO
-             * =====================================================
-             */
+                        respuesta.put(
+                                        "evidenciaId",
+                                        evidencia.getId());
 
-            byte[] imagen = alineacionReferenciaService.generarDiagnostico(
-                    referenciaOficial.getRutaAlmacenamiento(),
-                    evidencia.getRutaAlmacenamiento());
+                        respuesta.put(
+                                        "tipoEvidencia",
+                                        evidencia.getTipoEvidencia());
 
-            /*
-             * =====================================================
-             * 4. DEVOLVER PNG
-             * =====================================================
-             */
+                        respuesta.put(
+                                        "referenciaOficialId",
+                                        referenciaOficial.getId());
 
-            return ResponseEntity
-                    .ok()
-                    .contentType(
-                            MediaType.IMAGE_PNG)
-                    .header(
-                            "Content-Disposition",
-                            "inline; filename=alineacion-evidencia-"
-                                    + evidenciaId
-                                    + ".png")
-                    .body(
-                            imagen);
+                        respuesta.put(
+                                        "exhibidor",
+                                        evidencia.getExhibidor());
 
-        } catch (IllegalArgumentException e) {
+                        respuesta.put(
+                                        "vista",
+                                        evidencia.getVista());
 
-            return ResponseEntity
-                    .badRequest()
-                    .contentType(
-                            MediaType.APPLICATION_JSON)
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
+                        respuesta.put(
+                                        "puntosReferencia",
+                                        resultado.puntosReferencia());
 
-        } catch (IllegalStateException e) {
+                        respuesta.put(
+                                        "puntosEvidencia",
+                                        resultado.puntosEvidencia());
 
-            return ResponseEntity
-                    .internalServerError()
-                    .contentType(
-                            MediaType.APPLICATION_JSON)
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
+                        respuesta.put(
+                                        "coincidenciasTotales",
+                                        resultado.coincidenciasTotales());
+
+                        respuesta.put(
+                                        "coincidenciasValidas",
+                                        resultado.coincidenciasValidas());
+
+                        respuesta.put(
+                                        "porcentajeCoincidencia",
+                                        resultado.porcentajeCoincidencia());
+
+                        respuesta.put(
+                                        "coincidenciasGeometricas",
+                                        resultado.coincidenciasGeometricas());
+
+                        respuesta.put(
+                                        "porcentajeInliers",
+                                        resultado.porcentajeInliers());
+
+                        respuesta.put(
+                                        "homografiaCalculada",
+                                        resultado.homografiaCalculada());
+
+                        respuesta.put(
+                                        "alineacionPosible",
+                                        resultado.alineacionPosible());
+
+                        return ResponseEntity.ok(
+                                        respuesta);
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+
+                } catch (IllegalStateException e) {
+
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(Map.of(
+                                                        "error",
+                                                        e.getMessage()));
+                }
         }
-    }
+        /*
+         * =========================================================
+         * DEBUG VISUAL DE ALINEACIÓN SIFT + RANSAC
+         *
+         * Genera una imagen PNG mostrando:
+         *
+         * REFERENCIA OFICIAL | EVIDENCIA
+         *
+         * y dibuja únicamente las coincidencias geométricas
+         * aceptadas por RANSAC.
+         * =========================================================
+         */
 
-    /*
-     * =========================================================
-     * RECORTE DE REGIÓN DE BÚSQUEDA DEL EXHIBIDOR
-     *
-     * Devuelve únicamente la zona de la evidencia que contiene
-     * aproximadamente el exhibidor localizado mediante
-     * SIFT + RANSAC.
-     *
-     * Funciona tanto para:
-     *
-     * - EVIDENCIA_ZONAL
-     * - EVIDENCIA_FARMACIA
-     *
-     * Ambas se comparan siempre contra REFERENCIA_OFICIAL.
-     * =========================================================
-     */
+        @GetMapping(value = "/evidencia/{evidenciaId}/alineacion/debug", produces = MediaType.IMAGE_PNG_VALUE)
+        public ResponseEntity<?> generarDebugAlineacion(
+                        @PathVariable Long evidenciaId) {
 
-    @GetMapping(value = "/evidencia/{evidenciaId}/recorte", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<?> generarRecorte(
-            @PathVariable Long evidenciaId) {
+                try {
 
-        try {
+                        /*
+                         * =====================================================
+                         * 1. OBTENER EVIDENCIA
+                         * =====================================================
+                         */
 
-            /*
-             * 1. Obtener evidencia a evaluar.
-             */
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
 
-            /*
-             * Una evidencia ZONAL o FARMACIA debe apuntar
-             * directamente a su REFERENCIA_OFICIAL.
-             */
-            if (evidencia.getReferenciaOficialId() == null) {
+                        /*
+                         * La evidencia zonal o farmacia debe apuntar
+                         * directamente a su REFERENCIA_OFICIAL.
+                         */
+                        if (evidencia.getReferenciaOficialId() == null) {
 
-                throw new IllegalArgumentException(
-                        "La evidencia no posee una referencia oficial asociada.");
-            }
+                                throw new IllegalArgumentException(
+                                                "La evidencia no posee una referencia oficial asociada.");
+                        }
 
-            /*
-             * 2. Obtener referencia oficial.
-             */
-            EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
-                    evidencia.getReferenciaOficialId());
+                        /*
+                         * =====================================================
+                         * 2. OBTENER REFERENCIA OFICIAL
+                         * =====================================================
+                         */
 
-            /*
-             * 3. Generar el recorte.
-             */
-            byte[] imagen = alineacionReferenciaService
-                    .generarRecorteRegionBusqueda(
-                            referenciaOficial
-                                    .getRutaAlmacenamiento(),
-                            evidencia
-                                    .getRutaAlmacenamiento());
+                        EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
+                                        evidencia.getReferenciaOficialId());
 
-            /*
-             * 4. Retornar PNG.
-             */
-            return ResponseEntity
-                    .ok()
-                    .contentType(
-                            MediaType.IMAGE_PNG)
-                    .header(
-                            "Content-Disposition",
-                            "inline; filename=recorte-evidencia-"
-                                    + evidenciaId
-                                    + ".png")
-                    .body(
-                            imagen);
+                        /*
+                         * =====================================================
+                         * 3. GENERAR IMAGEN DE DIAGNÓSTICO
+                         * =====================================================
+                         */
 
-        } catch (IllegalArgumentException e) {
+                        byte[] imagen = alineacionReferenciaService.generarDiagnostico(
+                                        referenciaOficial.getRutaAlmacenamiento(),
+                                        evidencia.getRutaAlmacenamiento());
 
-            return ResponseEntity
-                    .badRequest()
-                    .contentType(
-                            MediaType.APPLICATION_JSON)
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
+                        /*
+                         * =====================================================
+                         * 4. DEVOLVER PNG
+                         * =====================================================
+                         */
 
-        } catch (IllegalStateException e) {
+                        return ResponseEntity
+                                        .ok()
+                                        .contentType(
+                                                        MediaType.IMAGE_PNG)
+                                        .header(
+                                                        "Content-Disposition",
+                                                        "inline; filename=alineacion-evidencia-"
+                                                                        + evidenciaId
+                                                                        + ".png")
+                                        .body(
+                                                        imagen);
 
-            return ResponseEntity
-                    .internalServerError()
-                    .contentType(
-                            MediaType.APPLICATION_JSON)
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .contentType(
+                                                        MediaType.APPLICATION_JSON)
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
+
+                } catch (IllegalStateException e) {
+
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .contentType(
+                                                        MediaType.APPLICATION_JSON)
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
+                }
         }
-    }
-    /*
-     * =========================================================
-     * OCR SOBRE RECORTE DEL EXHIBIDOR
-     *
-     * Flujo:
-     *
-     * EVIDENCIA
-     * ↓
-     * REFERENCIA_OFICIAL
-     * ↓
-     * SIFT + RANSAC
-     * ↓
-     * RECORTE
-     * ↓
-     * OCR
-     *
-     * Funciona tanto para:
-     *
-     * - EVIDENCIA_ZONAL
-     * - EVIDENCIA_FARMACIA
-     * =========================================================
-     */
 
-    @PostMapping("/evidencia/{evidenciaId}/recorte/ocr")
-    public ResponseEntity<?> procesarOcrRecorte(
-            @PathVariable Long evidenciaId) {
+        /*
+         * =========================================================
+         * RECORTE DE REGIÓN DE BÚSQUEDA DEL EXHIBIDOR
+         *
+         * Devuelve únicamente la zona de la evidencia que contiene
+         * aproximadamente el exhibidor localizado mediante
+         * SIFT + RANSAC.
+         *
+         * Funciona tanto para:
+         *
+         * - EVIDENCIA_ZONAL
+         * - EVIDENCIA_FARMACIA
+         *
+         * Ambas se comparan siempre contra REFERENCIA_OFICIAL.
+         * =========================================================
+         */
 
-        try {
+        @GetMapping(value = "/evidencia/{evidenciaId}/recorte", produces = MediaType.IMAGE_PNG_VALUE)
+        public ResponseEntity<?> generarRecorte(
+                        @PathVariable Long evidenciaId) {
 
-            /*
-             * =====================================================
-             * 1. OBTENER EVIDENCIA
-             * =====================================================
-             */
+                try {
 
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
+                        /*
+                         * 1. Obtener evidencia a evaluar.
+                         */
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
 
-            /*
-             * Zonal y farmacia siempre se comparan
-             * directamente contra REFERENCIA_OFICIAL.
-             */
-            if (evidencia.getReferenciaOficialId() == null) {
+                        /*
+                         * Una evidencia ZONAL o FARMACIA debe apuntar
+                         * directamente a su REFERENCIA_OFICIAL.
+                         */
+                        if (evidencia.getReferenciaOficialId() == null) {
 
-                throw new IllegalArgumentException(
-                        "La evidencia no posee una referencia oficial asociada.");
-            }
+                                throw new IllegalArgumentException(
+                                                "La evidencia no posee una referencia oficial asociada.");
+                        }
 
-            /*
-             * =====================================================
-             * 2. OBTENER REFERENCIA OFICIAL
-             * =====================================================
-             */
+                        /*
+                         * 2. Obtener referencia oficial.
+                         */
+                        EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
+                                        evidencia.getReferenciaOficialId());
 
-            EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
-                    evidencia.getReferenciaOficialId());
+                        /*
+                         * 3. Generar el recorte.
+                         */
+                        byte[] imagen = alineacionReferenciaService
+                                        .generarRecorteRegionBusqueda(
+                                                        referenciaOficial
+                                                                        .getRutaAlmacenamiento(),
+                                                        evidencia
+                                                                        .getRutaAlmacenamiento());
 
-            /*
-             * =====================================================
-             * 3. GENERAR RECORTE
-             * =====================================================
-             */
+                        /*
+                         * 4. Retornar PNG.
+                         */
+                        return ResponseEntity
+                                        .ok()
+                                        .contentType(
+                                                        MediaType.IMAGE_PNG)
+                                        .header(
+                                                        "Content-Disposition",
+                                                        "inline; filename=recorte-evidencia-"
+                                                                        + evidenciaId
+                                                                        + ".png")
+                                        .body(
+                                                        imagen);
 
-            byte[] recorte = alineacionReferenciaService
-                    .generarRecorteRegionBusqueda(
-                            referenciaOficial
-                                    .getRutaAlmacenamiento(),
-                            evidencia
-                                    .getRutaAlmacenamiento());
+                } catch (IllegalArgumentException e) {
 
-            /*
-             * =====================================================
-             * 4. OCR SOBRE EL RECORTE
-             * =====================================================
-             */
+                        return ResponseEntity
+                                        .badRequest()
+                                        .contentType(
+                                                        MediaType.APPLICATION_JSON)
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
 
-            String textoOcr = ocrService.extraerTexto(
-                    recorte);
+                } catch (IllegalStateException e) {
 
-            /*
-             * =====================================================
-             * 5. RESPUESTA
-             * =====================================================
-             */
-
-            Map<String, Object> respuesta = new LinkedHashMap<>();
-
-            respuesta.put(
-                    "evidenciaId",
-                    evidencia.getId());
-
-            respuesta.put(
-                    "tipoEvidencia",
-                    evidencia.getTipoEvidencia());
-
-            respuesta.put(
-                    "referenciaOficialId",
-                    referenciaOficial.getId());
-
-            respuesta.put(
-                    "exhibidor",
-                    evidencia.getExhibidor());
-
-            respuesta.put(
-                    "vista",
-                    evidencia.getVista());
-
-            respuesta.put(
-                    "recorteGenerado",
-                    true);
-
-            respuesta.put(
-                    "textoOcr",
-                    textoOcr);
-
-            return ResponseEntity.ok(
-                    respuesta);
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
-
-        } catch (IllegalStateException e) {
-
-            return ResponseEntity
-                    .internalServerError()
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .contentType(
+                                                        MediaType.APPLICATION_JSON)
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
+                }
         }
-    }
+        /*
+         * =========================================================
+         * OCR SOBRE RECORTE DEL EXHIBIDOR
+         *
+         * Flujo:
+         *
+         * EVIDENCIA
+         * ↓
+         * REFERENCIA_OFICIAL
+         * ↓
+         * SIFT + RANSAC
+         * ↓
+         * RECORTE
+         * ↓
+         * OCR
+         *
+         * Funciona tanto para:
+         *
+         * - EVIDENCIA_ZONAL
+         * - EVIDENCIA_FARMACIA
+         * =========================================================
+         */
 
-    /*
-     * =========================================================
-     * ANALIZAR TEXTO OCR DEL RECORTE
-     *
-     * Flujo:
-     *
-     * evidencia
-     * ↓
-     * referencia oficial
-     * ↓
-     * SIFT + RANSAC
-     * ↓
-     * recorte
-     * ↓
-     * OCR multivariante
-     * ↓
-     * normalización de texto
-     *
-     * Todavía NO determina cumplimiento.
-     * =========================================================
-     */
+        @PostMapping("/evidencia/{evidenciaId}/recorte/ocr")
+        public ResponseEntity<?> procesarOcrRecorte(
+                        @PathVariable Long evidenciaId) {
 
-    @PostMapping("/evidencia/{evidenciaId}/recorte/ocr/analisis")
-    public ResponseEntity<?> analizarTextoOcrRecorte(
-            @PathVariable Long evidenciaId) {
+                try {
 
-        try {
+                        /*
+                         * =====================================================
+                         * 1. OBTENER EVIDENCIA
+                         * =====================================================
+                         */
 
-            /*
-             * =====================================================
-             * 1. OBTENER EVIDENCIA
-             * =====================================================
-             */
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
 
-            EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
-                    evidenciaId);
+                        /*
+                         * Zonal y farmacia siempre se comparan
+                         * directamente contra REFERENCIA_OFICIAL.
+                         */
+                        if (evidencia.getReferenciaOficialId() == null) {
 
-            if (evidencia.getReferenciaOficialId() == null) {
+                                throw new IllegalArgumentException(
+                                                "La evidencia no posee una referencia oficial asociada.");
+                        }
 
-                throw new IllegalArgumentException(
-                        "La evidencia no posee una referencia oficial asociada.");
-            }
+                        /*
+                         * =====================================================
+                         * 2. OBTENER REFERENCIA OFICIAL
+                         * =====================================================
+                         */
 
-            /*
-             * =====================================================
-             * 2. OBTENER REFERENCIA OFICIAL
-             * =====================================================
-             */
+                        EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
+                                        evidencia.getReferenciaOficialId());
 
-            EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
-                    evidencia.getReferenciaOficialId());
+                        /*
+                         * =====================================================
+                         * 3. GENERAR RECORTE
+                         * =====================================================
+                         */
 
-            /*
-             * =====================================================
-             * 3. GENERAR RECORTE
-             * =====================================================
-             */
+                        byte[] recorte = alineacionReferenciaService
+                                        .generarRecorteRegionBusqueda(
+                                                        referenciaOficial
+                                                                        .getRutaAlmacenamiento(),
+                                                        evidencia
+                                                                        .getRutaAlmacenamiento());
 
-            byte[] recorte = alineacionReferenciaService
-                    .generarRecorteRegionBusqueda(
-                            referenciaOficial
-                                    .getRutaAlmacenamiento(),
-                            evidencia
-                                    .getRutaAlmacenamiento());
+                        /*
+                         * =====================================================
+                         * 4. OCR SOBRE EL RECORTE
+                         * =====================================================
+                         */
 
-            /*
-             * =====================================================
-             * 4. OCR
-             * =====================================================
-             */
+                        String textoOcr = ocrService.extraerTexto(
+                                        recorte);
 
-            String textoOcr = ocrService.extraerTexto(
-                    recorte);
+                        /*
+                         * =====================================================
+                         * 5. RESPUESTA
+                         * =====================================================
+                         */
 
-            /*
-             * =====================================================
-             * 5. NORMALIZAR TEXTO OCR
-             * =====================================================
-             */
+                        Map<String, Object> respuesta = new LinkedHashMap<>();
 
-            ResultadoNormalizacion normalizado = analisisTextoOcrService
-                    .normalizar(
-                            textoOcr);
+                        respuesta.put(
+                                        "evidenciaId",
+                                        evidencia.getId());
 
-            /*
-             * =====================================================
-             * 6. RESPUESTA
-             * =====================================================
-             */
+                        respuesta.put(
+                                        "tipoEvidencia",
+                                        evidencia.getTipoEvidencia());
 
-            Map<String, Object> respuesta = new LinkedHashMap<>();
+                        respuesta.put(
+                                        "referenciaOficialId",
+                                        referenciaOficial.getId());
 
-            respuesta.put(
-                    "evidenciaId",
-                    evidencia.getId());
+                        respuesta.put(
+                                        "exhibidor",
+                                        evidencia.getExhibidor());
 
-            respuesta.put(
-                    "tipoEvidencia",
-                    evidencia.getTipoEvidencia());
+                        respuesta.put(
+                                        "vista",
+                                        evidencia.getVista());
 
-            respuesta.put(
-                    "referenciaOficialId",
-                    referenciaOficial.getId());
+                        respuesta.put(
+                                        "recorteGenerado",
+                                        true);
 
-            respuesta.put(
-                    "exhibidor",
-                    evidencia.getExhibidor());
+                        respuesta.put(
+                                        "textoOcr",
+                                        textoOcr);
 
-            respuesta.put(
-                    "vista",
-                    evidencia.getVista());
+                        return ResponseEntity.ok(
+                                        respuesta);
 
-            respuesta.put(
-                    "cantidadTokens",
-                    normalizado.cantidadTokens());
+                } catch (IllegalArgumentException e) {
 
-            respuesta.put(
-                    "tokens",
-                    normalizado.tokens());
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
 
-            respuesta.put(
-                    "lineas",
-                    normalizado.lineas());
+                } catch (IllegalStateException e) {
 
-            respuesta.put(
-                    "textoNormalizado",
-                    normalizado.textoNormalizado());
-
-            return ResponseEntity.ok(
-                    respuesta);
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
-
-        } catch (IllegalStateException e) {
-
-            return ResponseEntity
-                    .internalServerError()
-                    .body(
-                            Map.of(
-                                    "error",
-                                    e.getMessage()));
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
+                }
         }
-    }
+
+        /*
+         * =========================================================
+         * ANALIZAR TEXTO OCR DEL RECORTE
+         *
+         * Flujo:
+         *
+         * evidencia
+         * ↓
+         * referencia oficial
+         * ↓
+         * SIFT + RANSAC
+         * ↓
+         * recorte
+         * ↓
+         * OCR multivariante
+         * ↓
+         * normalización de texto
+         *
+         * Todavía NO determina cumplimiento.
+         * =========================================================
+         */
+
+        @PostMapping("/evidencia/{evidenciaId}/recorte/ocr/analisis")
+        public ResponseEntity<?> analizarTextoOcrRecorte(
+                        @PathVariable Long evidenciaId) {
+
+                try {
+
+                        /*
+                         * =====================================================
+                         * 1. OBTENER EVIDENCIA
+                         * =====================================================
+                         */
+
+                        EvidenciaFotografica evidencia = evidenciaService.obtenerPorId(
+                                        evidenciaId);
+
+                        if (evidencia.getReferenciaOficialId() == null) {
+
+                                throw new IllegalArgumentException(
+                                                "La evidencia no posee una referencia oficial asociada.");
+                        }
+
+                        /*
+                         * =====================================================
+                         * 2. OBTENER REFERENCIA OFICIAL
+                         * =====================================================
+                         */
+
+                        EvidenciaFotografica referenciaOficial = evidenciaService.obtenerPorId(
+                                        evidencia.getReferenciaOficialId());
+
+                        /*
+                         * =====================================================
+                         * 3. GENERAR RECORTE
+                         * =====================================================
+                         */
+
+                        byte[] recorte = alineacionReferenciaService
+                                        .generarRecorteRegionBusqueda(
+                                                        referenciaOficial
+                                                                        .getRutaAlmacenamiento(),
+                                                        evidencia
+                                                                        .getRutaAlmacenamiento());
+
+                        /*
+                         * =====================================================
+                         * 4. OCR
+                         * =====================================================
+                         */
+
+                        String textoOcr = ocrService.extraerTexto(
+                                        recorte);
+
+                        /*
+                         * =====================================================
+                         * 5. NORMALIZAR TEXTO OCR
+                         * =====================================================
+                         */
+
+                        ResultadoNormalizacion normalizado = analisisTextoOcrService
+                                        .normalizar(
+                                                        textoOcr);
+
+                        /*
+                         * =====================================================
+                         * 6. RESPUESTA
+                         * =====================================================
+                         */
+
+                        Map<String, Object> respuesta = new LinkedHashMap<>();
+
+                        respuesta.put(
+                                        "evidenciaId",
+                                        evidencia.getId());
+
+                        respuesta.put(
+                                        "tipoEvidencia",
+                                        evidencia.getTipoEvidencia());
+
+                        respuesta.put(
+                                        "referenciaOficialId",
+                                        referenciaOficial.getId());
+
+                        respuesta.put(
+                                        "exhibidor",
+                                        evidencia.getExhibidor());
+
+                        respuesta.put(
+                                        "vista",
+                                        evidencia.getVista());
+
+                        respuesta.put(
+                                        "cantidadTokens",
+                                        normalizado.cantidadTokens());
+
+                        respuesta.put(
+                                        "tokens",
+                                        normalizado.tokens());
+
+                        respuesta.put(
+                                        "lineas",
+                                        normalizado.lineas());
+
+                        respuesta.put(
+                                        "textoNormalizado",
+                                        normalizado.textoNormalizado());
+
+                        return ResponseEntity.ok(
+                                        respuesta);
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity
+                                        .badRequest()
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
+
+                } catch (IllegalStateException e) {
+
+                        return ResponseEntity
+                                        .internalServerError()
+                                        .body(
+                                                        Map.of(
+                                                                        "error",
+                                                                        e.getMessage()));
+                }
+        }
 }

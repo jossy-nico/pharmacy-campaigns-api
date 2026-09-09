@@ -7,6 +7,8 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.text.Normalizer;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,24 @@ public class EvidenciaFotograficaService {
 
         private static final String ESTADO_CARGADA = "CARGADA";
         private static final String ORIGEN_CARGA_WEB = "CARGA_WEB";
+        /*
+         * =========================================================
+         * VALORES CONTROLADOS DEL NUEVO FLUJO
+         * =========================================================
+         */
+
+        private static final String ORIGEN_MANUAL = "MANUAL";
+
+        private static final String ORIGEN_FROGMI = "FROGMI";
+
+        private static final Set<String> VISTAS_VALIDAS = Set.of(
+                        "FRONTAL",
+                        "LATERAL_1",
+                        "LATERAL_2");
+
+        private static final Set<String> ORIGENES_VALIDOS = Set.of(
+                        ORIGEN_MANUAL,
+                        ORIGEN_FROGMI);
 
         private final EvidenciaFotograficaRepository evidenciaRepository;
         private final CampaniaRepository campaniaRepository;
@@ -160,6 +180,71 @@ public class EvidenciaFotograficaService {
                                 observacion,
                                 TIPO_EVIDENCIA_FARMACIA);
         }
+        /*
+         * =========================================================
+         * NUEVO FLUJO - EVIDENCIA ZONAL
+         *
+         * Ya NO necesita referencia oficial.
+         * =========================================================
+         */
+
+        @Transactional
+        public EvidenciaFotografica subirEvidenciaZonal(
+                        Long campaniaId,
+                        Long farmaciaId,
+                        String exhibidor,
+                        String vista,
+                        String usuarioCarga,
+                        String origen,
+                        String externalId,
+                        MultipartFile imagen,
+                        String observacion) throws Exception {
+
+                return subirEvidenciaOperacionalNueva(
+                                campaniaId,
+                                farmaciaId,
+                                exhibidor,
+                                vista,
+                                usuarioCarga,
+                                origen,
+                                externalId,
+                                imagen,
+                                observacion,
+                                TIPO_EVIDENCIA_ZONAL);
+        }
+
+        /*
+         * =========================================================
+         * NUEVO FLUJO - EVIDENCIA FARMACIA
+         *
+         * Ya NO necesita referencia oficial.
+         * =========================================================
+         */
+
+        @Transactional
+        public EvidenciaFotografica subirEvidenciaFarmacia(
+                        Long campaniaId,
+                        Long farmaciaId,
+                        String exhibidor,
+                        String vista,
+                        String usuarioCarga,
+                        String origen,
+                        String externalId,
+                        MultipartFile imagen,
+                        String observacion) throws Exception {
+
+                return subirEvidenciaOperacionalNueva(
+                                campaniaId,
+                                farmaciaId,
+                                exhibidor,
+                                vista,
+                                usuarioCarga,
+                                origen,
+                                externalId,
+                                imagen,
+                                observacion,
+                                TIPO_EVIDENCIA_FARMACIA);
+        }
 
         /*
          * =========================================================
@@ -243,6 +328,177 @@ public class EvidenciaFotograficaService {
                                 observacion);
 
                 return evidenciaRepository.saveAndFlush(evidencia);
+        }
+        /*
+         * =========================================================
+         * NUEVA CARGA OPERACIONAL
+         *
+         * Flujo:
+         *
+         * ZONAL / FARMACIA
+         * ↓
+         * campaña + farmacia + exhibidor + vista
+         * ↓
+         * fotografía
+         * ↓
+         * calidad
+         * ↓
+         * Vision AI
+         * ↓
+         * PRODUCTOS_PAI
+         *
+         * La referencia oficial ya no es obligatoria.
+         * =========================================================
+         */
+
+        private EvidenciaFotografica subirEvidenciaOperacionalNueva(
+                        Long campaniaId,
+                        Long farmaciaId,
+                        String exhibidor,
+                        String vista,
+                        String usuarioCarga,
+                        String origen,
+                        String externalId,
+                        MultipartFile imagen,
+                        String observacion,
+                        String tipoEvidencia) throws Exception {
+
+                /*
+                 * =====================================================
+                 * 1. CAMPAÑA
+                 * =====================================================
+                 */
+
+                Campania campania = obtenerCampania(
+                                campaniaId);
+
+                validarCampaniaActivaParaEvidencia(
+                                campania,
+                                tipoEvidencia);
+
+                /*
+                 * =====================================================
+                 * 2. FARMACIA
+                 * =====================================================
+                 */
+
+                validarFarmacia(
+                                farmaciaId);
+
+                /*
+                 * =====================================================
+                 * 3. EXHIBIDOR
+                 * =====================================================
+                 */
+
+                validarTextoObligatorio(
+                                exhibidor,
+                                "El exhibidor es obligatorio.");
+
+                String exhibidorNormalizado = normalizarCodigo(
+                                exhibidor);
+
+                /*
+                 * =====================================================
+                 * 4. VISTA
+                 * =====================================================
+                 */
+
+                validarTextoObligatorio(
+                                vista,
+                                "La vista de la fotografía es obligatoria.");
+
+                String vistaNormalizada = normalizarCodigo(
+                                vista);
+
+                validarVista(
+                                vistaNormalizada);
+
+                /*
+                 * =====================================================
+                 * 5. USUARIO
+                 * =====================================================
+                 */
+
+                validarTextoObligatorio(
+                                usuarioCarga,
+                                "El usuario que carga la evidencia es obligatorio.");
+
+                /*
+                 * =====================================================
+                 * 6. ORIGEN
+                 * =====================================================
+                 */
+
+                validarTextoObligatorio(
+                                origen,
+                                "El origen de la evidencia es obligatorio.");
+
+                String origenNormalizado = normalizarCodigo(
+                                origen);
+
+                validarOrigen(
+                                origenNormalizado);
+
+                /*
+                 * =====================================================
+                 * 7. IMAGEN
+                 * =====================================================
+                 */
+
+                validarImagen(
+                                imagen);
+
+                DatosArchivoImagen datosArchivo = almacenarImagen(
+                                imagen);
+
+                /*
+                 * =====================================================
+                 * 8. CREAR EVIDENCIA
+                 * =====================================================
+                 */
+
+                EvidenciaFotografica evidencia = new EvidenciaFotografica();
+
+                evidencia.setCampaniaId(
+                                campania.getId());
+
+                evidencia.setFarmaciaId(
+                                farmaciaId);
+
+                evidencia.setTipoEvidencia(
+                                tipoEvidencia);
+
+                /*
+                 * NUEVO FLUJO:
+                 *
+                 * la foto no necesita estar asociada
+                 * a una REFERENCIA_OFICIAL.
+                 */
+                evidencia.setReferenciaOficialId(
+                                null);
+
+                evidencia.setExhibidor(
+                                exhibidorNormalizado);
+
+                evidencia.setVista(
+                                vistaNormalizada);
+
+                completarDatosArchivo(
+                                evidencia,
+                                imagen,
+                                datosArchivo);
+
+                completarDatosGeneralesNuevaCarga(
+                                evidencia,
+                                observacion,
+                                usuarioCarga,
+                                origenNormalizado,
+                                externalId);
+
+                return evidenciaRepository
+                                .saveAndFlush(
+                                                evidencia);
         }
 
         /*
@@ -538,6 +794,45 @@ public class EvidenciaFotograficaService {
                                         mensaje);
                 }
         }
+        /*
+         * =========================================================
+         * VALIDAR VISTA
+         * =========================================================
+         */
+
+        private void validarVista(
+                        String vista) {
+
+                if (!VISTAS_VALIDAS.contains(
+                                vista)) {
+
+                        throw new IllegalArgumentException(
+                                        "Vista no válida: "
+                                                        + vista
+                                                        + ". Los valores permitidos son "
+                                                        + "FRONTAL, LATERAL_1 y LATERAL_2.");
+                }
+        }
+
+        /*
+         * =========================================================
+         * VALIDAR ORIGEN
+         * =========================================================
+         */
+
+        private void validarOrigen(
+                        String origen) {
+
+                if (!ORIGENES_VALIDOS.contains(
+                                origen)) {
+
+                        throw new IllegalArgumentException(
+                                        "Origen no válido: "
+                                                        + origen
+                                                        + ". Los valores permitidos son "
+                                                        + "MANUAL y FROGMI.");
+                }
+        }
 
         /*
          * =========================================================
@@ -567,6 +862,43 @@ public class EvidenciaFotograficaService {
                  */
                 evidencia.setUsuarioCarga(
                                 null);
+
+                evidencia.setFechaCarga(
+                                OffsetDateTime.now());
+        }
+        /*
+         * =========================================================
+         * DATOS GENERALES - NUEVO FLUJO
+         * =========================================================
+         */
+
+        private void completarDatosGeneralesNuevaCarga(
+                        EvidenciaFotografica evidencia,
+                        String observacion,
+                        String usuarioCarga,
+                        String origen,
+                        String externalId) {
+
+                evidencia.setOrigen(
+                                origen);
+
+                evidencia.setEstado(
+                                ESTADO_CARGADA);
+
+                evidencia.setResultado(
+                                null);
+
+                evidencia.setObservacion(
+                                normalizarObservacion(
+                                                observacion));
+
+                evidencia.setUsuarioCarga(
+                                normalizarTexto(
+                                                usuarioCarga));
+
+                evidencia.setExternalId(
+                                normalizarOpcional(
+                                                externalId));
 
                 evidencia.setFechaCarga(
                                 OffsetDateTime.now());
@@ -715,6 +1047,61 @@ public class EvidenciaFotograficaService {
 
                 return observacion.trim();
         }
+        /*
+         * =========================================================
+         * NORMALIZAR CÓDIGOS
+         *
+         * Ejemplos:
+         *
+         * Acrílico 1 -> ACRILICO_1
+         * acrilico_1 -> ACRILICO_1
+         * lateral 1 -> LATERAL_1
+         * frontal -> FRONTAL
+         * =========================================================
+         */
+
+        private String normalizarCodigo(
+                        String texto) {
+
+                if (texto == null
+                                || texto.isBlank()) {
+
+                        return "";
+                }
+
+                String sinAcentos = Normalizer.normalize(
+                                texto,
+                                Normalizer.Form.NFD)
+                                .replaceAll(
+                                                "\\p{M}+",
+                                                "");
+
+                return sinAcentos
+                                .trim()
+                                .toUpperCase(
+                                                Locale.ROOT)
+                                .replaceAll(
+                                                "[^A-Z0-9]+",
+                                                "_")
+                                .replaceAll(
+                                                "^_+|_+$",
+                                                "")
+                                .replaceAll(
+                                                "_+",
+                                                "_");
+        }
+
+        private String normalizarOpcional(
+                        String texto) {
+
+                if (texto == null
+                                || texto.isBlank()) {
+
+                        return null;
+                }
+
+                return texto.trim();
+        }
 
         /*
          * =========================================================
@@ -728,4 +1115,5 @@ public class EvidenciaFotograficaService {
                         String hashSha256,
                         String extension) {
         }
+
 }

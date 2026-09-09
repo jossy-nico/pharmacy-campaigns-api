@@ -73,11 +73,33 @@ public class EvidenciaFotograficaController {
          * =========================================================
          */
 
+        /*
+         * =========================================================
+         * CARGA DE EVIDENCIA ZONAL
+         *
+         * Nuevo flujo:
+         *
+         * - campaña
+         * - farmacia
+         * - usuario
+         * - exhibidor
+         * - vista
+         * - origen
+         * - imagen
+         *
+         * La referencia oficial ya NO es obligatoria.
+         * =========================================================
+         */
+
         @PostMapping("/zonales")
         public ResponseEntity<?> subirEvidenciaZonal(
                         @RequestParam("campaniaId") Long campaniaId,
                         @RequestParam("farmaciaId") Long farmaciaId,
-                        @RequestParam("referenciaOficialId") Long referenciaOficialId,
+                        @RequestParam("usuarioCarga") String usuarioCarga,
+                        @RequestParam("exhibidor") String exhibidor,
+                        @RequestParam("vista") String vista,
+                        @RequestParam("origen") String origen,
+                        @RequestParam(value = "externalId", required = false) String externalId,
                         @RequestParam("imagen") MultipartFile imagen,
                         @RequestParam(value = "observacion", required = false) String observacion) {
 
@@ -87,7 +109,11 @@ public class EvidenciaFotograficaController {
                                         evidenciaService.subirEvidenciaZonal(
                                                         campaniaId,
                                                         farmaciaId,
-                                                        referenciaOficialId,
+                                                        exhibidor,
+                                                        vista,
+                                                        usuarioCarga,
+                                                        origen,
+                                                        externalId,
                                                         imagen,
                                                         observacion));
 
@@ -115,11 +141,33 @@ public class EvidenciaFotograficaController {
          * =========================================================
          */
 
+        /*
+         * =========================================================
+         * CARGA DE EVIDENCIA DE FARMACIA
+         *
+         * Nuevo flujo:
+         *
+         * - campaña
+         * - farmacia
+         * - usuario
+         * - exhibidor
+         * - vista
+         * - origen
+         * - imagen
+         *
+         * La referencia oficial ya NO es obligatoria.
+         * =========================================================
+         */
+
         @PostMapping("/farmacias")
         public ResponseEntity<?> subirEvidenciaFarmacia(
                         @RequestParam("campaniaId") Long campaniaId,
                         @RequestParam("farmaciaId") Long farmaciaId,
-                        @RequestParam("referenciaOficialId") Long referenciaOficialId,
+                        @RequestParam("usuarioCarga") String usuarioCarga,
+                        @RequestParam("exhibidor") String exhibidor,
+                        @RequestParam("vista") String vista,
+                        @RequestParam("origen") String origen,
+                        @RequestParam(value = "externalId", required = false) String externalId,
                         @RequestParam("imagen") MultipartFile imagen,
                         @RequestParam(value = "observacion", required = false) String observacion) {
 
@@ -129,7 +177,11 @@ public class EvidenciaFotograficaController {
                                         evidenciaService.subirEvidenciaFarmacia(
                                                         campaniaId,
                                                         farmaciaId,
-                                                        referenciaOficialId,
+                                                        exhibidor,
+                                                        vista,
+                                                        usuarioCarga,
+                                                        origen,
+                                                        externalId,
                                                         imagen,
                                                         observacion));
 
