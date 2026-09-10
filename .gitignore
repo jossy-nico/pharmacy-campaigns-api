@@ -1,10 +1,21 @@
 HELP.md
+
+# =========================================================
+# MAVEN / JAVA
+# =========================================================
+
 target/
+*.class
+
 .mvn/wrapper/maven-wrapper.jar
+
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# =========================================================
+# STS
+# =========================================================
+
 .apt_generated
 .classpath
 .factorypath
@@ -13,34 +24,86 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
+# =========================================================
+# INTELLIJ IDEA
+# =========================================================
+
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# =========================================================
+# NETBEANS
+# =========================================================
+
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
+
 build/
+
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# =========================================================
+# VS CODE
+# =========================================================
+
 .vscode/
 
-# Maven / Java
-target/
-*.class
+# =========================================================
+# ARCHIVOS GENERADOS POR LA APLICACIÓN
+# =========================================================
 
-# VS Code
-.vscode/
-
-# Archivos cargados por la aplicación
 storage/
 
-# Variables y secretos locales
+# =========================================================
+# VARIABLES Y SECRETOS
+# =========================================================
+
 .env
+.env.*
+!.env.example
+
+# =========================================================
+# PYTHON
+# =========================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entorno virtual
+vision-ai/.venv/
+.venv/
+
+# Cache Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# =========================================================
+# VISION AI
+# =========================================================
+
+# Fotografías reales y dataset local
+vision-ai/dataset/
+
+# Pesos de modelos entrenados
+vision-ai/weights/
+
+*.pth
+*.pt
+*.onnx
+
+# Resultados temporales de entrenamiento / inferencia
+vision-ai/outputs/
+vision-ai/runs/
+
+# Archivos temporales
+*.tmp
